@@ -42,8 +42,8 @@ restausimplon/
 │   │
 │   ├── schemas/
 │   │   ├── __init__.py
-│   │   ├── commande.py             # Pydantic : UserCreate, UserRead, etc.
-│   │   ├── produit.py              # Pydantic : UserCreate, UserRead, etc.
+│   │   ├── commande.py             # Pydantic : CommandCreate, CommandRead, etc.
+│   │   ├── produit.py              # Pydantic : ProductCreate, ProductRead, etc.
 │   │   ├── user.py                 # Pydantic : UserCreate, UserRead, etc.
 │   │
 │   ├── utils/
