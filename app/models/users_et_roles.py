@@ -27,4 +27,4 @@ class User(SQLModel, table=True):
     date_creation: datetime = Field(default_factory=datetime.now(timezone.utc))
 
     role: Optional[Role] = Relationship(back_populates="users")
-    commandes: List["Commande"] = Relationship(back_populates="client")
+    # commandes: List["Commande"] = Relationship(back_populates="client")
