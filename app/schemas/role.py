@@ -8,18 +8,26 @@ class RoleBase(BaseModel):
     nom: str
 
 
-# classe base pour le roles,
+# classe pour creer un role,
 # si besoin au future de creer un role il faudra le faire dans crud ou/et Api (a verifier)
 
 
 class RoleCreate(RoleBase):
     pass
 
-# lecture role
+
+# lecture - role
+
 
 class RoleRead(RoleBase):
     id: int
 
-# Update si besoin pour un role
 
-class RoleUpdate
+# Update si besoin pour un role -update a partir de BaseModel
+
+
+class RoleUpdate(BaseModel):
+    nom: Optional[str] = None
+
+
+# Pas de login pour les roles normalement. donc pas de RoleLogin
