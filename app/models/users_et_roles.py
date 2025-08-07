@@ -1,15 +1,22 @@
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Relationship
+from enum import Enum
 
 if TYPE_CHECKING:
     from .commandes_et_produits import Commande
 
 
+class RoleEnum(str, Enum):
+    admin = "admin"
+    client = "client"
+    serveur = "serveur"
+
+
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
     id: Optional[int] = Field(default=None, primary_key=True)
-    nom: str
+    nom: RoleEnum
 
     users: List["User"] = Relationship(back_populates="role")
 
