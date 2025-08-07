@@ -2,7 +2,7 @@
 
 from sqlmodel import Session
 from app.models.users_et_roles import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import hash_password
 from sqlmodel import select
 
@@ -38,3 +38,25 @@ def get_all_users(session: Session) -> list[User]:
 
 def get_user_by_id(session: Session, user_id: int) -> User | None:
     return session.get(User, user_id)
+
+
+# update users (avec mot_de_passe mais pas visible dans FastApi)
+
+
+def update_user(session: Session, user_id: int, user_data: UserUpdate) -> User | None:
+    user = session.get(User, user_id)
+    if not user:
+        return None
+
+    update_data = user_data.dict(exclude_unset=True)
+
+    if "mot_de_passe" in update_data and update_data["mot_de_passe"]:
+        update_data["mot_de_passe"] = hash_password(update_data["mot_de_passe"])
+
+    for key, value in update_data.items():
+        setattr(user, key, value)
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user

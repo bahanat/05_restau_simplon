@@ -47,4 +47,6 @@ class UserUpdate(BaseModel):
     adresse: Optional[str]
     telephone: Optional[str]
     role_id: Optional[int]
-    mot_de_passe: Optional[str] = Field(None, min_length=10)
+    mot_de_passe: Optional[str] = Field(
+        None, min_length=10, exclude=True
+    )  # si besoin pour regarder dans Swagger, je dois enlever exclude

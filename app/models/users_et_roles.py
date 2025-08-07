@@ -30,4 +30,4 @@ class User(SQLModel, table=True):
     commandes: List["Commande"] = Relationship(back_populates="client")
 
 
-from app.models.commandes_et_produits import Commande
+from app.models.commandes_et_produits import Commande  # ligne a enlever pour merge
