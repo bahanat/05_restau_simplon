@@ -3,6 +3,10 @@
 from sqlmodel import Session
 from app.models.users_et_roles import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.models.commandes_et_produits import (
+    Commande,
+    DetailCommande,
+)  # pour delete - je dois supprimer avant les commandes d'utilisateur
 from app.core.security import hash_password
 from sqlmodel import select
 
@@ -60,3 +64,27 @@ def update_user(session: Session, user_id: int, user_data: UserUpdate) -> User |
     session.commit()
     session.refresh(user)
     return user
+
+
+# Delete pour completer CRUD - Delete pour users. utiise bool dans la fonction car l'utilisateur supprime, je vais voir le status pas l'utilisateur
+
+
+def delete_user(session: Session, user_id: int) -> bool:
+    user = session.get(User, user_id)
+    if not user:
+        return False
+
+    commandes = session.exec(
+        select(Commande).where(Commande.client_id == user_id)
+    ).all()  # pour supprimer commandes et detailcommandes d'utilisateur a supprimer
+    for commande in commandes:
+        details = session.exec(
+            select(DetailCommande).where(DetailCommande.commande_id == commande.id)
+        ).all()
+        for detail in details:
+            session.delete(detail)
+        session.delete(commande)
+
+    session.delete(user)
+    session.commit()
+    return True
