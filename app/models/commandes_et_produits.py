@@ -57,3 +57,6 @@ class DetailCommande(SQLModel, table=True):
 
     commande: Commande = Relationship(back_populates="details")
     produit: Produit = Relationship(back_populates="details_commandes")
+
+
+from app.models.users_et_roles import User  # ligne a enlever pour merge
