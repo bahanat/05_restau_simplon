@@ -26,5 +26,15 @@ def user_creation(session: Session, user_data: UserCreate) -> User:
     return user
 
 
+# Read - tous les utilisateurs
+
+
 def get_all_users(session: Session) -> list[User]:
     return session.exec(select(User)).all()
+
+
+# Read -  utilisateur par Id
+
+
+def get_user_by_id(session: Session, user_id: int) -> User | None:
+    return session.get(User, user_id)

@@ -42,7 +42,7 @@ class Commande(SQLModel, table=True):
     statut: StatusEnum = Field(default=StatusEnum.en_attente)
     montant_total: float = Field(default=0.0)
 
-    # client: "User" = Relationship(back_populates="commandes")
+    client: "User" = Relationship(back_populates="commandes")
     details: List["DetailCommande"] = Relationship(back_populates="commande")
 
 
@@ -54,3 +54,6 @@ class DetailCommande(SQLModel, table=True):
 
     commande: Commande = Relationship(back_populates="details")
     produit: Produit = Relationship(back_populates="details_commandes")
+
+
+from app.models.users_et_roles import User

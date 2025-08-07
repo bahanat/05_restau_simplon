@@ -13,7 +13,9 @@ from app.models.commandes_et_produits import (
 
 fake = Faker("fr_FR")
 
-from app.core.config import settings
+from app.core.config import (
+    settings,
+)  # ligne d'avant DATABASE_URL = "sqlite:///app/test.db"
 
 engine = create_engine(settings.DATABASE_URL, echo=False)
 
