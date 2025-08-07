@@ -43,7 +43,10 @@ class Commande(SQLModel, table=True):
     montant_total: float = Field(default=0.0)
 
     client: "User" = Relationship(back_populates="commandes")
-    details: List["DetailCommande"] = Relationship(back_populates="commande")
+    details: List["DetailCommande"] = Relationship(
+        back_populates="commande",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class DetailCommande(SQLModel, table=True):
@@ -54,3 +57,6 @@ class DetailCommande(SQLModel, table=True):
 
     commande: Commande = Relationship(back_populates="details")
     produit: Produit = Relationship(back_populates="details_commandes")
+
+
+from app.models.users_et_roles import User  # ligne a enlever pour merge

@@ -13,8 +13,11 @@ from app.models.commandes_et_produits import (
 
 fake = Faker("fr_FR")
 
-DATABASE_URL = "sqlite:///app/test.db"
-engine = create_engine(DATABASE_URL, echo=False)
+from app.core.config import (
+    settings,
+)
+
+engine = create_engine(settings.DATABASE_URL, echo=False)
 
 SQLModel.metadata.create_all(engine)
 
