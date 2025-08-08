@@ -1,8 +1,9 @@
+from app.core.security import hash_password
 from sqlmodel import SQLModel, Session, create_engine
 from faker import Faker
 import random
 
-from app.models.users_et_roles import User, Role
+from app.models.users_et_roles import User, Role, RoleEnum
 from app.models.commandes_et_produits import (
     Categorie,
     Produit,
@@ -26,9 +27,10 @@ SQLModel.metadata.create_all(engine)
 def create_fake_data():
     with Session(engine) as session:
         # --- 1. Créer quelques rôles ---
-        role_admin = Role(nom="admin")
-        role_client = Role(nom="client")
-        session.add_all([role_admin, role_client])
+        role_admin = Role(nom=RoleEnum.admin)
+        role_client = Role(nom=RoleEnum.client)
+        role_serveur = Role(nom=RoleEnum.serveur)
+        session.add_all([role_admin, role_client, role_serveur])
         session.commit()
 
         # --- 2. Créer quelques utilisateurs ---
@@ -40,8 +42,8 @@ def create_fake_data():
                 email=fake.unique.email(),
                 adresse=fake.address(),
                 telephone=fake.phone_number(),
-                mot_de_passe="hash_mdp_test",
-                role_id=random.choice([role_admin.id, role_client.id]),
+                mot_de_passe=hash_password("group1start2025"),
+                role_id=random.choice([role_admin.id, role_client.id, role_serveur.id]),
                 date_creation=fake.date_time_this_year(),
             )
             users.append(user)
