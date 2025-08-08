@@ -14,7 +14,7 @@ from app.crud.commande import (
 )
 from app.db.session import get_session
 
-router = APIRouter(prefix="/commandes", tags=["commandes"])
+router = APIRouter(prefix="/commandes", tags=["Commandes"])
 
 
 @router.post("/", response_model=CommandeRead)

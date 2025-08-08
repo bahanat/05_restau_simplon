@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from datetime import datetime
+
 from app.api.v1 import categorie, produit
 from app.api.v1 import user
 from app.api.v1 import commande
@@ -10,7 +11,7 @@ from app.api.v1 import role
 
 app = FastAPI(title="RESTAU_SIMPLON 🍽️")
 
-# inclusion des routes de l'API v1
+# Inclusion des routes de l'API v1
 app.include_router(categorie.router)
 app.include_router(produit.router)
 app.include_router(user.router)

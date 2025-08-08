@@ -4,7 +4,7 @@ from typing import List
 
 from app.schemas.user import UserRead, UserUpdate, UserCreate
 from app.crud.user import (
-    user_creation,
+    create_user,
     get_all_users,
     get_user_by_id,
     update_user,
@@ -19,9 +19,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def create_user_endpoint(
     user_data: UserCreate, session: Session = Depends(get_session)
 ):
-    return user_creation(session, user_data)
+    return create_user(session, user_data)
 
-  
+
 @router.get("/", response_model=List[UserRead])
 def read_users_endpoint(session: Session = Depends(get_session)):
     return get_all_users(session)
