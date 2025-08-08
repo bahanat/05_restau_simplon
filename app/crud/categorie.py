@@ -1,39 +1,37 @@
-from sqlmodel import select, Session
-from app.db_creation import engine
-from app.schemas.categorie import CategorieCreate, CategorieRead, CategorieUpdate
+from sqlmodel import Session, select
+
+from app.schemas.categorie import CategorieCreate, CategorieUpdate
 from app.models.commandes_et_produits import Categorie
 
 
-def get_session():
-    return Session(engine)
-
-# Create : Création d'une catégorie
-def create_categorie(categorie_data: CategorieCreate) -> Categorie:
-    session = get_session()
+# --- Create ---
+def create_categorie(session: Session, categorie_data: CategorieCreate) -> Categorie:
     categorie = Categorie.model_validate(categorie_data)
     session.add(categorie)
     session.commit()
     session.refresh(categorie)
     return categorie
 
-# Read : Lecture de categorie 
-def get_all_categories() -> list[Categorie]:
-    session = get_session()
+
+# --- Read ---
+def get_all_categories(session: Session) -> list[Categorie]:
     return session.exec(select(Categorie)).all()
 
-def get_categorie_by_id(categorie_id: int) -> Categorie | None:
-    session = get_session()
+
+# --- Read (par id) ---
+def get_categorie_by_id(session: Session, categorie_id: int) -> Categorie | None:
     return session.get(Categorie, categorie_id)
 
 
-def get_categorie_by_nom(categorie_nom: str) -> Categorie | None:
-    session = get_session()
+# --- Read (par nom) ---
+def get_categorie_by_nom(session: Session, categorie_nom: str) -> Categorie | None:
     return session.get(Categorie, categorie_nom)
-    
-    
-# Update : Mettre a jour une categorie
-def update_categorie(categorie_id: int, data: CategorieUpdate) -> Categorie | None:
-    session = get_session()
+
+
+# --- Update ---
+def update_categorie(
+    session: Session, categorie_id: int, data: CategorieUpdate
+) -> Categorie | None:
     categorie = session.get(Categorie, categorie_id)
     if not categorie:
         return None
@@ -44,9 +42,8 @@ def update_categorie(categorie_id: int, data: CategorieUpdate) -> Categorie | No
     return categorie
 
 
-# Delete : Supprimer une categorie
-def delete_categorie(categorie_id: int) -> bool:
-    session = get_session()
+# --- Delete ---
+def delete_categorie(session: Session, categorie_id: int) -> bool:
     categorie = session.get(Categorie, categorie_id)
     if not categorie:
         return False
