@@ -1,7 +1,8 @@
 from sqlmodel import Session, select
-from app.models.commandes_et_produits import Produit
+from app.models.commandes_et_produits import Produit, Categorie
 from app.schemas.produit import ProduitCreate, ProduitUpdate
 from app.db_creation import engine
+from fastapi import HTTPException
 
 def get_session():
     return Session(engine)
@@ -9,6 +10,17 @@ def get_session():
 # Create : Création d'un produit
 def create_produit(data: ProduitCreate) -> Produit:
     session = get_session()
+    # Je vérifie si la produit_id renseigner par l'utilisateur existe:
+    if data.categorie_id:
+        categorie = session.get(Categorie, data.categorie_id)
+        if not categorie:
+            categories_existantes = session.exec(select(Categorie)).all()
+            noms = [f"{c.id} - {c.nom}" for c in categories_existantes]
+            raise HTTPException(
+                status_code=400,
+                detail=f"Catégorie ID {data.categorie_id} introuvable. Catégories disponibles : {noms}"
+            )
+
     produit = Produit.model_validate(data)
     session.add(produit)
     session.commit()

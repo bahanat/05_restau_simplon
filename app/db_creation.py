@@ -54,6 +54,7 @@ def create_fake_data():
             Categorie(nom="Plat"),
             Categorie(nom="Dessert"),
             Categorie(nom="Boisson"),
+            Categorie(nom="Autre")
         ]
         session.add_all(categories)
         session.commit()
