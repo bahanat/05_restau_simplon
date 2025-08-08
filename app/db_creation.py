@@ -1,8 +1,8 @@
-from app.core.security import hash_password
 from sqlmodel import SQLModel, Session, create_engine
 from faker import Faker
 import random
 
+from app.core.security import hash_mdp
 from app.models.users_et_roles import User, Role, RoleEnum
 from app.models.commandes_et_produits import (
     Categorie,
@@ -42,7 +42,7 @@ def create_fake_data():
                 email=fake.unique.email(),
                 adresse=fake.address(),
                 telephone=fake.phone_number(),
-                mot_de_passe=hash_password("group1start2025"),
+                mot_de_passe=hash_mdp("group1start2025"),
                 role_id=random.choice([role_admin.id, role_client.id, role_serveur.id]),
                 date_creation=fake.date_time_this_year(),
             )
@@ -56,7 +56,7 @@ def create_fake_data():
             Categorie(nom="Plat"),
             Categorie(nom="Dessert"),
             Categorie(nom="Boisson"),
-            Categorie(nom="Autre")
+            Categorie(nom="Autre"),
         ]
         session.add_all(categories)
         session.commit()

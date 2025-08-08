@@ -6,10 +6,9 @@ from app.schemas.produit import ProduitCreate, ProduitUpdate
 from app.db_creation import engine
 
 
-# Create : Création d'un produit
-def create_produit(data: ProduitCreate) -> Produit:
-    session = get_session()
-    # Je vérifie si la produit_id renseigner par l'utilisateur existe:
+# --- Create ---
+def create_produit(session: Session, data: ProduitCreate) -> Produit:
+    # Je vérifie si le categorie_id renseigné par l'utilisateur existe
     if data.categorie_id:
         categorie = session.get(Categorie, data.categorie_id)
         if not categorie:
@@ -17,7 +16,7 @@ def create_produit(data: ProduitCreate) -> Produit:
             noms = [f"{c.id} - {c.nom}" for c in categories_existantes]
             raise HTTPException(
                 status_code=400,
-                detail=f"Catégorie ID {data.categorie_id} introuvable. Catégories disponibles : {noms}"
+                detail=f"Catégorie ID {data.categorie_id} introuvable. Catégories disponibles : {noms}",
             )
 
     produit = Produit.model_validate(data)

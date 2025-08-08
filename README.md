@@ -14,31 +14,36 @@ restausimplon/
 │   │   │   ├── categorie.py            # Routes Catégories
 │   │   │   ├── commande.py             # Routes Commandes
 │   │   │   ├── produit.py              # Routes Produits
+│   │   │   ├── role.py                 # Routes Rôles
 │   │   │   ├── user.py                 # Routes Users
 │   │   │
-│   │   ├── deps.py                     # Dépendances réutilisables (ex : get_current_user)
+│   │   ├── deps.py                     # Dépendances réutilisables
 │   │
 │   ├── core/
 │   │   ├── config.py                   # Variables d'environnement, paramètres app
 │   │   ├── security.py                 # JWT, hashage mots de passe
 │   │
 │   ├── crud/
-│   │   ├── commande.py                 # Fonctions CRUD Commandes + Détails
+│   │   ├── categorie.py                # Fonctions CRUD Catégories
+│   │   ├── commande.py                 # Fonctions CRUD Commandes
+│   │   ├── details.py                  # Fonctions CRUD Détails
 │   │   ├── produit.py                  # Fonctions CRUD Produits
 │   │   ├── user.py                     # Fonctions CRUD Users
 │   │
 │   ├── db/
 │   │   ├── session.py                  # Connexion DB (engine, session)
 │   │   ├── base.py                     # Import global des modèles pour Alembic
-│   │   ├── migrations/                 # Fichiers Alembic
 │   │
 │   ├── models/
 │   │   ├── commandes_et_produits.py    # Modèles SQLModel pour les produits, commandes et leurs détails
 │   │   ├── users_et_roles.py           # Modèles SQLModel pour les utilisateurs et leurs rôles
 │   │
 │   ├── schemas/
+│   │   ├── categorie.py                # Pydantic : CategorieCreate, CategorieRead, etc.
 │   │   ├── commande.py                 # Pydantic : CommandCreate, CommandRead, etc.
+│   │   ├── detail.py                   # Pydantic : DetailUpdate, etc.
 │   │   ├── produit.py                  # Pydantic : ProductCreate, ProductRead, etc.
+│   │   ├── role.py                     # Pydantic : RoleCreate, RoleRead, etc.
 │   │   ├── user.py                     # Pydantic : UserCreate, UserRead, etc.
 │   │
 │   ├── utils/
