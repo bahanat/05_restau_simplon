@@ -1,40 +1,48 @@
-from fastapi import APIRouter, HTTPException
-from app.schemas.categorie import CategorieCreate, CategorieRead, CategorieUpdate
+from fastapi import APIRouter, HTTPException, Depends
+from sqlmodel import Session
+
+from app.db.session import get_session
 from app.crud.categorie import (
-    create_categorie, get_all_categories, get_categorie_by_id,
-    update_categorie, delete_categorie
+    create_categorie,
+    get_all_categories,
+    get_categorie_by_id,
+    update_categorie,
+    delete_categorie,
 )
+from app.schemas.categorie import CategorieCreate, CategorieRead, CategorieUpdate
 
 router = APIRouter(prefix="/categories", tags=["Catégories"])
 
-# CREATE:
+
 @router.post("/", response_model=CategorieRead)
-def create(data: CategorieCreate):
-    return create_categorie(data)
+def create(data: CategorieCreate, session: Session = Depends(get_session)):
+    return create_categorie(session, data)
 
-# READ
+
 @router.get("/", response_model=list[CategorieRead])
-def read():
-    return get_all_categories()
+def read(session: Session = Depends(get_session)):
+    return get_all_categories(session)
 
-    
+
 @router.get("/{categorie_id}", response_model=CategorieRead)
-def read_one(categorie_id: int):
-    categorie = get_categorie_by_id(categorie_id)
+def read_one(categorie_id: int, session: Session = Depends(get_session)):
+    categorie = get_categorie_by_id(session, categorie_id)
     if not categorie:
         raise HTTPException(status_code=404, detail="Catégorie introuvable")
     return categorie
 
-# UPDATE
+
 @router.put("/{categorie_id}", response_model=CategorieRead)
-def update(categorie_id: int, data: CategorieUpdate):
-    categorie = update_categorie(categorie_id, data)
+def update(
+    categorie_id: int, data: CategorieUpdate, session: Session = Depends(get_session)
+):
+    categorie = update_categorie(session, categorie_id, data)
     if not categorie:
         raise HTTPException(status_code=404, detail="Catégorie introuvable")
     return categorie
 
-# DELETE 
+
 @router.delete("/{categorie_id}", status_code=204)
-def delete(categorie_id: int):
-    if not delete_categorie(categorie_id):
+def delete(categorie_id: int, session: Session = Depends(get_session)):
+    if not delete_categorie(session, categorie_id):
         raise HTTPException(status_code=404, detail="Catégorie introuvable")

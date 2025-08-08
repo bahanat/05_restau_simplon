@@ -1,15 +1,22 @@
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Relationship
+from enum import Enum
 
 if TYPE_CHECKING:
     from .commandes_et_produits import Commande
 
 
+class RoleEnum(str, Enum):
+    admin = "admin"
+    client = "client"
+    serveur = "serveur"
+
+
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
     id: Optional[int] = Field(default=None, primary_key=True)
-    nom: str
+    nom: RoleEnum
 
     users: List["User"] = Relationship(back_populates="role")
 
@@ -24,10 +31,7 @@ class User(SQLModel, table=True):
     telephone: Optional[str] = None
     mot_de_passe: str
     role_id: Optional[int] = Field(default=None, foreign_key="roles.id")
-    date_creation: datetime = Field(default_factory=datetime.now(timezone.utc))
+    date_creation: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     role: Optional[Role] = Relationship(back_populates="users")
     commandes: List["Commande"] = Relationship(back_populates="client")
-
-
-from app.models.commandes_et_produits import Commande  # ligne a enlever pour merge

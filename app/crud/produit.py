@@ -1,11 +1,10 @@
 from sqlmodel import Session, select
+from fastapi import HTTPException
+
 from app.models.commandes_et_produits import Produit, Categorie
 from app.schemas.produit import ProduitCreate, ProduitUpdate
 from app.db_creation import engine
-from fastapi import HTTPException
 
-def get_session():
-    return Session(engine)
 
 # Create : Création d'un produit
 def create_produit(data: ProduitCreate) -> Produit:
@@ -27,18 +26,23 @@ def create_produit(data: ProduitCreate) -> Produit:
     session.refresh(produit)
     return produit
 
-# Read : Lecture des produits
-def get_all_produits() -> list[Produit]:
-    session = get_session()
+
+# --- Read ---
+def get_all_produits(
+    session: Session,
+) -> list[Produit]:
     return session.exec(select(Produit)).all()
 
-def get_produit_by_id(produit_id: int) -> Produit | None:
-    session = get_session()
+
+# --- Read (par id) ---
+def get_produit_by_id(session: Session, produit_id: int) -> Produit | None:
     return session.get(Produit, produit_id)
 
-# Update : Mettre a jour un produit
-def update_produit(produit_id: int, data: ProduitUpdate) -> Produit | None:
-    session = get_session()
+
+# --- Update ---
+def update_produit(
+    session: Session, produit_id: int, data: ProduitUpdate
+) -> Produit | None:
     produit = session.get(Produit, produit_id)
     if not produit:
         return None
@@ -48,9 +52,9 @@ def update_produit(produit_id: int, data: ProduitUpdate) -> Produit | None:
     session.refresh(produit)
     return produit
 
-# Delete : Supprimer un produit
-def delete_produit(produit_id: int) -> bool:
-    session = get_session()
+
+# --- Delete ---
+def delete_produit(session: Session, produit_id: int) -> bool:
     produit = session.get(Produit, produit_id)
     if not produit:
         return False
