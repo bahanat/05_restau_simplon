@@ -1,11 +1,19 @@
 from pydantic import BaseModel
 from typing import Optional
+from enum import Enum
+
+
+class RoleEnum(str, Enum):
+    admin = "admin"
+    client = "client"
+    serveur = "serveur"
+
 
 # classe base pour roles
 
 
 class RoleBase(BaseModel):
-    nom: str
+    nom: RoleEnum
 
 
 # classe pour creer un role,
@@ -27,7 +35,7 @@ class RoleRead(RoleBase):
 
 
 class RoleUpdate(BaseModel):
-    nom: Optional[str] = None
+    nom: Optional[RoleEnum] = None
 
 
 # Pas de login pour les roles normalement. donc pas de RoleLogin
