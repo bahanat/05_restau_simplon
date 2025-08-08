@@ -26,3 +26,23 @@ def get_all_roles(session: Session) -> List[Role]:
 
 def get_role_by_id(session: Session, role_id: int) -> Optional[Role]:
     return session.get(Role, role_id)
+
+
+# update role
+
+
+def update_role(
+    session: Session, role_id: int, role_data: RoleUpdate
+) -> Optional[Role]:
+    role = session.get(Role, role_id)
+    if not role:
+        return None
+
+    update_data = role_data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(role, key, value)
+
+    session.add(role)
+    session.commit()
+    session.refresh(role)
+    return role

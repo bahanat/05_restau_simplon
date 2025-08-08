@@ -29,7 +29,7 @@ def create_user_endpoint(
 
 
 @router.get("/", response_model=List[UserRead])
-def read_users(session: Session = Depends(get_session)):
+def read_users_endpoint(session: Session = Depends(get_session)):
     return get_all_users(session)
 
 
@@ -37,7 +37,7 @@ def read_users(session: Session = Depends(get_session)):
 
 
 @router.get("/{user_id}", response_model=UserRead)
-def get_user_endpoint(user_id: int, session: Session = Depends(get_session)):
+def read_user_endpoint(user_id: int, session: Session = Depends(get_session)):
     user = get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")

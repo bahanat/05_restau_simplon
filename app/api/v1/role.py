@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 
-from app.schemas.role import RoleCreate, RoleRead
-from app.crud.role import role_creation, get_all_roles, get_role_by_id
+from app.schemas.role import RoleCreate, RoleRead, RoleUpdate
+from app.crud.role import role_creation, get_all_roles, get_role_by_id, update_role
 from app.db.session import get_session
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -22,7 +22,7 @@ def create_role_endpoint(
 
 
 @router.get("/", response_model=List[RoleRead])
-def read_roles(session: Session = Depends(get_session)):
+def read_roles_endpoint(session: Session = Depends(get_session)):
     return get_all_roles(session)
 
 
@@ -30,8 +30,21 @@ def read_roles(session: Session = Depends(get_session)):
 
 
 @router.get("/{role_id}", response_model=RoleRead)
-def read_role(role_id: int, session: Session = Depends(get_session)):
+def read_role_endpoint(role_id: int, session: Session = Depends(get_session)):
     role = get_role_by_id(session, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="role pas identifie")
     return role
+
+
+# update - role
+
+
+@router.put("/{role_id}", response_model=RoleRead)
+def update_role_endpoint(
+    role_id: int, role_data: RoleUpdate, session: Session = Depends(get_session)
+):
+    updated_role = update_role(session, role_id, role_data)
+    if not updated_role:
+        raise HTTPException(status_code=404, detail="Role non trouvé")
+    return updated_role
