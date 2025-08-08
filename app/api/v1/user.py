@@ -2,11 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 
-from app.schemas.user import UserRead, UserUpdate
-from app.crud.user import get_all_users, get_user_by_id, update_user, delete_user
+from app.schemas.user import UserRead, UserUpdate, UserCreate
+from app.crud.user import (
+    user_creation,
+    get_all_users,
+    get_user_by_id,
+    update_user,
+    delete_user,
+)
 from app.db.session import get_session
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+# Creation - user
+
+
+@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def create_user_endpoint(
+    user_data: UserCreate, session: Session = Depends(get_session)
+):
+    return user_creation(session, user_data)
 
 
 # Read - tous les utilisateurs

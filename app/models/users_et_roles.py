@@ -31,7 +31,7 @@ class User(SQLModel, table=True):
     telephone: Optional[str] = None
     mot_de_passe: str
     role_id: Optional[int] = Field(default=None, foreign_key="roles.id")
-    date_creation: datetime = Field(default_factory=datetime.now(timezone.utc))
+    date_creation: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     role: Optional[Role] = Relationship(back_populates="users")
     commandes: List["Commande"] = Relationship(back_populates="client")
