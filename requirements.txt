@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+pydantic-settings>=2.0.0,<3.0.0
+pydantic[email]
+psycopg2-binary
+python-dotenv
+passlib
+bcrypt==4.0.1
+faker
