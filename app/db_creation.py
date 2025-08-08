@@ -1,3 +1,4 @@
+from app.core.security import hash_password
 from sqlmodel import SQLModel, Session, create_engine
 from faker import Faker
 import random
@@ -41,7 +42,7 @@ def create_fake_data():
                 email=fake.unique.email(),
                 adresse=fake.address(),
                 telephone=fake.phone_number(),
-                mot_de_passe="hash_mdp_test",
+                mot_de_passe=hash_password("group1start2025"),
                 role_id=random.choice([role_admin.id, role_client.id, role_serveur.id]),
                 date_creation=fake.date_time_this_year(),
             )

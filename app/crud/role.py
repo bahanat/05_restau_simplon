@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from typing import List, Optional
-from app.models.users_et_roles import Role
+from app.models.users_et_roles import Role, User
 from app.schemas.role import RoleCreate, RoleUpdate
 
 # creation roles
@@ -46,3 +46,24 @@ def update_role(
     session.commit()
     session.refresh(role)
     return role
+
+
+# delete role
+
+
+def delete_role(session: Session, role_id: int) -> Optional[List[int]]:
+    role = session.get(Role, role_id)
+    if not role:
+        return None
+
+    users_with_role = session.exec(select(User).where(User.role_id == role_id)).all()
+
+    users_affected = [u.id for u in users_with_role]
+
+    for u in users_with_role:
+        u.role_id = None
+
+    session.delete(role)
+    session.commit()
+
+    return users_affected

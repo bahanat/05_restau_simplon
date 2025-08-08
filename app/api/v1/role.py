@@ -3,7 +3,13 @@ from sqlmodel import Session
 from typing import List
 
 from app.schemas.role import RoleCreate, RoleRead, RoleUpdate
-from app.crud.role import role_creation, get_all_roles, get_role_by_id, update_role
+from app.crud.role import (
+    role_creation,
+    get_all_roles,
+    get_role_by_id,
+    update_role,
+    delete_role,
+)
 from app.db.session import get_session
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -48,3 +54,18 @@ def update_role_endpoint(
     if not updated_role:
         raise HTTPException(status_code=404, detail="Role non trouvé")
     return updated_role
+
+
+# delete - role
+
+
+@router.delete("/{role_id}", status_code=status.HTTP_200_OK)
+def delete_role_endpoint(role_id: int, session: Session = Depends(get_session)):
+    utilisateurs = delete_role(session, role_id)
+    if utilisateurs is None:
+        raise HTTPException(status_code=404, detail="Role non trouvé")
+    return {
+        "message": "role supprime. Les utilisateurs lies n'ont plus de role.SVp,mettez les a jour",
+        "utilisateurs_affectés": utilisateurs,
+        "count": len(utilisateurs),
+    }
