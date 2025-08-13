@@ -3,7 +3,6 @@ from fastapi import HTTPException
 
 from app.models.commandes_et_produits import Produit, Categorie
 from app.schemas.produit import ProduitCreate, ProduitUpdate
-from app.db_creation import engine
 
 
 # --- Create ---

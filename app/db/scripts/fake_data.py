@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import Session, create_engine
 from faker import Faker
 import random
 
@@ -19,8 +19,6 @@ from app.core.config import (
 )
 
 engine = create_engine(settings.DATABASE_URL, echo=False)
-
-SQLModel.metadata.create_all(engine)
 
 
 # Utilisation de Faker pour la création de fausses données pour notre DB de test
