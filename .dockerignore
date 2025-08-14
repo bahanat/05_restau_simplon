@@ -1,0 +1,12 @@
+.env
+
+README.md
+LICENSE
+.gitignore
+
+__pycache__/
+*.py[codz]
+*$py.class
+
+*.db
+*.DS_Store

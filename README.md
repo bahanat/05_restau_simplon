@@ -58,6 +58,7 @@ restausimplon/
 │   ├── Dockerfile.api                  # Dockerfile pour l'image de l'API
 │   ├── main.py                         # Point d'entrée FastAPI
 │
+├── .dockerignore
 ├── .env                                # Variables d'environnement
 ├── .gitignore
 ├── docker-compose.yml
@@ -82,7 +83,7 @@ docker network create mynet
 
 2. Téléchargement de la dernière version de l'image `Postgres` officielle
 ```bash
-docker pull postgres:15
+docker pull postgres:15.6
 ```
 
 3. Lancement de l'image Postgres avec les bons paramètres
@@ -91,11 +92,10 @@ docker run -d \
   --name my-postgres \
   --env-file .env \
   --network mynet \
-  -p 5432:5432 \
   -v pgdata:/var/lib/postgresql/data \
   postgres
 ```
-La ligne `-p 5432:5432` n'est utile que si vous comptez consulter la BDD depuis DBeaver ou autre outil (en dehors du réseau Docker `mynet`), elle peut d'ailleurs causer des problèmes de ports si vous avez déjà un `Postgres` en local.
+Possibilité d'ajouter la ligne `-p 5432:5432` si vous comptez consulter la BDD depuis DBeaver ou autre outil (en dehors du réseau Docker `mynet`), elle peut d'ailleurs causer des problèmes de ports si vous avez déjà un `Postgres` en local ou de sécurité.
 
 4. Construction des images à partir des différents `Dockerfiles`
 - Pour le script de création des tables (en se basant sur les `SQL Models`) :
