@@ -82,7 +82,7 @@ docker network create mynet
 
 2. Téléchargement de la dernière version de l'image `Postgres` officielle
 ```bash
-docker pull postgres:latest
+docker pull postgres:15
 ```
 
 3. Lancement de l'image Postgres avec les bons paramètres

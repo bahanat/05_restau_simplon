@@ -1,6 +1,6 @@
 services:
   my-postgres:
-    image: postgres:latest
+    image: postgres:15
     container_name: mypg
     env_file:
       - .env
