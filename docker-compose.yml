@@ -1,9 +1,13 @@
 services:
   my-postgres:
-    image: postgres:15
+    image: postgres:15.6
     container_name: mypg
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - mynet
     volumes:
@@ -12,42 +16,48 @@ services:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 2s
       retries: 15
-    ports:
-      - "5432:5432"
 
   tables:
     build:
       context: .
       dockerfile: app/db/scripts/Dockerfile.tables
     container_name: mytables
-    env_file:
-      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - mynet
     depends_on:
       my-postgres:
         condition: service_healthy
+    restart: "no"
 
   fakedata:
     build:
       context: .
       dockerfile: app/db/scripts/Dockerfile.data
     container_name: myfakedata
-    env_file:
-      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - mynet
     depends_on:
       tables:
         condition: service_completed_successfully
+    restart: "no"
 
   api:
     build:
       context: .
       dockerfile: app/Dockerfile.api
     container_name: myapi
-    env_file:
-      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - mynet
     ports:
