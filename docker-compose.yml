@@ -1,0 +1,64 @@
+services:
+  my-postgres:
+    image: postgres:15
+    container_name: mypg
+    env_file:
+      - .env
+    networks:
+      - mynet
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 2s
+      retries: 15
+    ports:
+      - "5432:5432"
+
+  tables:
+    build:
+      context: .
+      dockerfile: app/db/scripts/Dockerfile.tables
+    container_name: mytables
+    env_file:
+      - .env
+    networks:
+      - mynet
+    depends_on:
+      my-postgres:
+        condition: service_healthy
+
+  fakedata:
+    build:
+      context: .
+      dockerfile: app/db/scripts/Dockerfile.data
+    container_name: myfakedata
+    env_file:
+      - .env
+    networks:
+      - mynet
+    depends_on:
+      tables:
+        condition: service_completed_successfully
+
+  api:
+    build:
+      context: .
+      dockerfile: app/Dockerfile.api
+    container_name: myapi
+    env_file:
+      - .env
+    networks:
+      - mynet
+    ports:
+      - "8000:8000"
+    depends_on:
+      fakedata:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+
+networks:
+  mynet:
+    driver: bridge

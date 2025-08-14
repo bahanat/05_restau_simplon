@@ -30,7 +30,13 @@ restausimplon/
 │   │   ├── produit.py                  # Fonctions CRUD Produits
 │   │   ├── user.py                     # Fonctions CRUD Users
 │   │
-│   ├── db/
+│   ├── db
+│   │   ├── scripts/
+│   │   │   ├── Dockerfile.data         # Dockerfile pour la création et insertion des données test
+│   │   │   ├── Dockerfile.tables       # Dockerfile pour la création des tables
+│   │   │   ├── fake_data.py            # Script de création et insertion des données test
+│   │   │   ├── tables_creation.py      # Script pour la création des tables (basées sur les SQL Models)
+│   │   │
 │   │   ├── session.py                  # Connexion DB (engine, session)
 │   │   ├── base.py                     # Import global des modèles pour Alembic
 │   │
@@ -49,32 +55,87 @@ restausimplon/
 │   ├── utils/
 │   │   ├── helpers.py                  # Fonctions utilitaires
 │   │
-│   ├── db_creation.py                  # Script de création en local de la base et ses tables avec fausses données
+│   ├── Dockerfile.api                  # Dockerfile pour l'image de l'API
 │   ├── main.py                         # Point d'entrée FastAPI
 │
 ├── .env                                # Variables d'environnement
-├── requirements.txt                    # Dépendances Python
+├── .gitignore
+├── docker-compose.yml
+├── LICENSE
 ├── README.md
+├── requirements.txt                    # Dépendances Python
+├── template.env                        # Fichier d'exemple pour le .env
 ```
 
-### Utilisation de l'app
+### Utilisation de l'application
 
-1. Installation des dépendances
+0. Créer et remplir le fichier `.env`, voir le `template.env`
+
+<hr>
+
+#### Option 1 - Lancement avec `Docker` (sans utiliser de docker-compose)
+
+1. Création du réseau pour les conteneurs Docker
 ```bash
-pip install -r requirements.txt
+docker network create mynet
 ```
 
-2. Renseignement des variables dans le `.env` (voir `template.env`)
-
-3. Création de la base de données de test en local
+2. Téléchargement de la dernière version de l'image `Postgres` officielle
 ```bash
-python -m app.db_creation
+docker pull postgres:15
 ```
 
-4. Lancement de l'API
+3. Lancement de l'image Postgres avec les bons paramètres
 ```bash
-uvicorn app.main:app --reload
+docker run -d \
+  --name my-postgres \
+  --env-file .env \
+  --network mynet \
+  -p 5432:5432 \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres
 ```
+La ligne `-p 5432:5432` n'est utile que si vous comptez consulter la BDD depuis DBeaver ou autre outil (en dehors du réseau Docker `mynet`), elle peut d'ailleurs causer des problèmes de ports si vous avez déjà un `Postgres` en local.
+
+4. Construction des images à partir des différents `Dockerfiles`
+- Pour le script de création des tables (en se basant sur les `SQL Models`) :
+```bash
+docker build -f app/db/scripts/Dockerfile.tables -t mytables .
+```
+
+- Pour le script de création et insertion de données de test (avec `Faker`) :
+```bash
+docker build -f app/db/scripts/Dockerfile.data -t myfakedata .
+```
+
+- Puis pour l'API :
+```bash
+docker build -f app/Dockerfile.api -t myapi .
+```
+
+5. Lancement des images précédemment construites (ordre à respecter ici)
+```bash
+docker run -d --name mytables --env-file .env --network mynet mytables
+```
+
+```bash
+docker run -d --name myfakedata --env-file .env --network mynet myfakedata
+```
+
+```bash
+docker run -d --name myapi --env-file .env --network mynet -p 8000:8000  myapi
+```
+
+<hr>
+
+#### Option 2 - Lancement avec un `docker-compose.yml`
+
+1. Lancement du `docker-compose` qui orchestre la construction et le lancement des différentes images
+```bash
+docker compose up --build
+```
+
+<hr>
 
 - Accès à l’API : http://127.0.0.1:8000  
 - Documentation interactive Swagger : http://127.0.0.1:8000/docs
