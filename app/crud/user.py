@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-
+from typing import Optional
 from app.core.security import hash_mdp
 from app.models.users_et_roles import User
 from app.models.commandes_et_produits import (
@@ -35,6 +35,11 @@ def get_all_users(session: Session) -> list[User]:
 # --- Read (par id) ---
 def get_user_by_id(session: Session, user_id: int) -> User | None:
     return session.get(User, user_id)
+
+
+# --- Read (par email) ---
+def get_user_by_email(session: Session, email: str) -> Optional[User]:
+    return session.exec(select(User).where(User.email == email)).first()
 
 
 # --- Update ---
