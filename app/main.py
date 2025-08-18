@@ -7,6 +7,7 @@ from app.api.v1 import categorie, produit
 from app.api.v1 import user
 from app.api.v1 import commande
 from app.api.v1 import role
+from app.api.v1 import logins
 
 
 app = FastAPI(title="RESTAU_SIMPLON 🍽️")
@@ -17,6 +18,7 @@ app.include_router(produit.router)
 app.include_router(user.router)
 app.include_router(commande.router)
 app.include_router(role.router)
+app.include_router(logins.router)
 
 
 # Montre le dossier static à l'URL /static
