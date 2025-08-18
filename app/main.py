@@ -1,14 +1,10 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from datetime import datetime
 
-from app.api.v1 import categorie, produit
-from app.api.v1 import user
-from app.api.v1 import commande
-from app.api.v1 import role
-from app.api.v1 import logins
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
+from app.api.v1 import categorie, commande, logins, produit, role, user
 
 app = FastAPI(title="RESTAU_SIMPLON 🍽️")
 
@@ -26,7 +22,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
-def read_root():
+def read_root() -> str:
     return f"""
     <html>
         <head>
@@ -34,7 +30,8 @@ def read_root():
             <style>
                 body {{
                     background-color: #f8f9fa;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
+                        sans-serif;
                     text-align: center;
                     padding: 50px;
                     color: #333;
@@ -73,9 +70,12 @@ def read_root():
                 <img src="/static/logo.png" alt="Logo RESTAU_SIMPLON"/>
                 <h1>Bienvenue sur RESTAU_SIMPLON 🍽️</h1>
                 <p><strong>Version :</strong> 1.0</p>
-                <p><strong>Auteur :</strong> Izak | Anathole | HARLEY</p>
+                <p><strong>Auteur :</strong> Izak | Anatole | HARLEY</p>
                 <p><a href="/docs">📚 Accéder à la documentation Swagger</a></p>
-                <p><em>Horodatage :</em> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <p><em>Horodatage :</em> {
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                </p>
             </div>
         </body>
     </html>

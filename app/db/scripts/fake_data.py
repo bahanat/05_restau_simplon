@@ -1,28 +1,34 @@
-from sqlmodel import Session, create_engine
-from faker import Faker
 import random
 
-from app.core.security import hash_mdp
-from app.models.users_et_roles import User, Role, RoleEnum
-from app.models.commandes_et_produits import (
-    Categorie,
-    Produit,
-    Commande,
-    DetailCommande,
-    StatusEnum,
-)
-
-fake = Faker("fr_FR")
+from faker import Faker
+from sqlmodel import Session, create_engine
 
 from app.core.config import (
     settings,
 )
+from app.core.security import hash_mdp
+from app.models.commandes_et_produits import (
+    Categorie,
+    Commande,
+    DetailCommande,
+    Produit,
+    StatusEnum,
+)
+from app.models.users_et_roles import Role, RoleEnum, User
+
+fake = Faker("fr_FR")
 
 engine = create_engine(settings.DATABASE_URL, echo=False)
 
+print(
+    "---------------------------------------------------",
+    settings.DATABASE_URL,
+    "------------------------------",
+)
 
-# Utilisation de Faker pour la création de fausses données pour notre DB de test
-def create_fake_data():
+
+# Utilisation de Faker pour la création de fausses données
+def create_fake_data() -> None:
     with Session(engine) as session:
         # --- 1. Créer quelques rôles ---
         role_admin = Role(nom=RoleEnum.admin)
@@ -88,11 +94,13 @@ def create_fake_data():
 
             # --- 6. Ajouter des détails à la commande ---
             produits_selectionnes = random.sample(produits, k=random.randint(1, 4))
-            montant_total = 0
+            montant_total = 0.0
             for prod in produits_selectionnes:
                 quantite = random.randint(1, 3)
                 detail = DetailCommande(
-                    commande_id=commande.id, produit_id=prod.id, quantite=quantite
+                    commande_id=commande.id,
+                    produit_id=prod.id,
+                    quantite=quantite,
                 )
                 montant_total += prod.prix * quantite
                 session.add(detail)

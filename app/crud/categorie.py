@@ -1,7 +1,9 @@
+from collections.abc import Sequence
+
 from sqlmodel import Session, select
 
-from app.schemas.categorie import CategorieCreate, CategorieUpdate
 from app.models.commandes_et_produits import Categorie
+from app.schemas.categorie import CategorieCreate, CategorieUpdate
 
 
 # --- Create ---
@@ -14,7 +16,7 @@ def create_categorie(session: Session, categorie_data: CategorieCreate) -> Categ
 
 
 # --- Read ---
-def get_all_categories(session: Session) -> list[Categorie]:
+def get_all_categories(session: Session) -> Sequence[Categorie]:
     return session.exec(select(Categorie)).all()
 
 

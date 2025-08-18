@@ -1,5 +1,7 @@
+from collections.abc import Sequence
+from typing import Optional
+
 from sqlmodel import Session, select
-from typing import List, Optional
 
 from app.models.users_et_roles import Role, User
 from app.schemas.role import RoleCreate, RoleUpdate
@@ -13,7 +15,7 @@ def role_creation(session: Session, role_data: RoleCreate) -> Role:
     return role
 
 
-def get_all_roles(session: Session) -> List[Role]:
+def get_all_roles(session: Session) -> Sequence[Role]:
     return session.exec(select(Role)).all()
 
 
@@ -38,10 +40,10 @@ def update_role(
     return role
 
 
-def delete_role(session: Session, role_id: int) -> Optional[List[int]]:
+def delete_role(session: Session, role_id: int) -> list[int | None]:
     role = session.get(Role, role_id)
     if not role:
-        return None
+        return []
 
     users_with_role = session.exec(select(User).where(User.role_id == role_id)).all()
 

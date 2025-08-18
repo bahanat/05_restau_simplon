@@ -1,7 +1,8 @@
-from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
-from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
+from typing import TYPE_CHECKING, List, Optional
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .commandes_et_produits import Commande

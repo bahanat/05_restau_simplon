@@ -1,7 +1,9 @@
-from sqlmodel import Session, select
-from fastapi import HTTPException
+from collections.abc import Sequence
 
-from app.models.commandes_et_produits import Produit, Categorie
+from fastapi import HTTPException
+from sqlmodel import Session, select
+
+from app.models.commandes_et_produits import Categorie, Produit
 from app.schemas.produit import ProduitCreate, ProduitUpdate
 
 
@@ -15,7 +17,10 @@ def create_produit(session: Session, data: ProduitCreate) -> Produit:
             noms = [f"{c.id} - {c.nom}" for c in categories_existantes]
             raise HTTPException(
                 status_code=400,
-                detail=f"Catégorie ID {data.categorie_id} introuvable. Catégories disponibles : {noms}",
+                detail=(
+                    f"Catégorie ID {data.categorie_id} introuvable. "
+                    f"Catégories disponibles : {noms}"
+                ),
             )
 
     produit = Produit.model_validate(data)
@@ -28,7 +33,7 @@ def create_produit(session: Session, data: ProduitCreate) -> Produit:
 # --- Read ---
 def get_all_produits(
     session: Session,
-) -> list[Produit]:
+) -> Sequence[Produit]:
     return session.exec(select(Produit)).all()
 
 

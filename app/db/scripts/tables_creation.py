@@ -1,9 +1,14 @@
-from sqlmodel import SQLModel, create_engine
-from app.core.config import settings
 from sqlalchemy.exc import OperationalError
+from sqlmodel import SQLModel, create_engine
 
-from app.models.commandes_et_produits import *
-from app.models.users_et_roles import *
+from app.core.config import settings
+from app.models.commandes_et_produits import (  # noqa: F401
+    Categorie,
+    Commande,
+    DetailCommande,
+    Produit,
+)
+from app.models.users_et_roles import Role, User  # noqa: F401
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 

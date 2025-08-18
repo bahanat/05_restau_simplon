@@ -1,5 +1,6 @@
-from sqlmodel import Session
 from typing import Sequence
+
+from sqlmodel import Session
 
 from app.models.commandes_et_produits import Commande, DetailCommande, Produit
 from app.schemas.detail import DetailsUpdate
