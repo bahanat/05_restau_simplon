@@ -1,17 +1,18 @@
-from typing import Optional, List
-from sqlmodel import Session, select
-from sqlalchemy.exc import SQLAlchemyError
+from collections.abc import Sequence
 from datetime import datetime
+from typing import Optional
 
-from app.schemas.commande import CommandeCreate, CommandeUpdate
+from sqlalchemy.exc import SQLAlchemyError
+from sqlmodel import Session, select
+
 from app.crud.details import update_details_commande
-
 from app.models.commandes_et_produits import (
     Commande,
-    Produit,
     DetailCommande,
+    Produit,
     StatusEnum,
 )
+from app.schemas.commande import CommandeCreate, CommandeUpdate
 
 
 # --- Create ---
@@ -55,7 +56,7 @@ def get_commandes(
     client_id: Optional[int] = None,
     date_commande: Optional[datetime] = None,
     statut: Optional[StatusEnum] = None,
-) -> List[Commande]:
+) -> Sequence[Commande]:
     statement = select(Commande)
 
     if client_id is not None:

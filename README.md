@@ -60,9 +60,12 @@ restausimplon/
 │
 ├── .dockerignore
 ├── .env                                # Variables d'environnement
+├── .flake8                             # Config de Flake
 ├── .gitignore
 ├── docker-compose.yml
 ├── LICENSE
+├── Makefile                            # Makefile pour le formattage du code et tests
+├── pyproject.toml                      # Configs de Black, isort, mypy
 ├── README.md
 ├── requirements.txt                    # Dépendances Python
 ├── template.env                        # Fichier d'exemple pour le .env

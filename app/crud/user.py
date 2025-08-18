@@ -1,11 +1,14 @@
-from sqlmodel import Session, select
+from collections.abc import Sequence
 from typing import Optional
+
+from sqlmodel import Session, select
+
 from app.core.security import hash_mdp
-from app.models.users_et_roles import User
 from app.models.commandes_et_produits import (
     Commande,
     DetailCommande,
 )
+from app.models.users_et_roles import User
 from app.schemas.user import UserCreate, UserUpdate
 
 
@@ -28,7 +31,7 @@ def create_user(session: Session, user_data: UserCreate) -> User:
 
 
 # --- Read ---
-def get_all_users(session: Session) -> list[User]:
+def get_all_users(session: Session) -> Sequence[User]:
     return session.exec(select(User)).all()
 
 

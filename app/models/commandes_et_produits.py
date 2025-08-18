@@ -1,7 +1,8 @@
-from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
-from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
+from typing import TYPE_CHECKING, List, Optional
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .users_et_roles import User
@@ -38,7 +39,7 @@ class Commande(SQLModel, table=True):
     __tablename__ = "commandes"
     id: Optional[int] = Field(default=None, primary_key=True)
     client_id: int = Field(foreign_key="users.id")
-    date_commande: datetime = Field(default_factory=datetime.now(timezone.utc))
+    date_commande: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     statut: StatusEnum = Field(default=StatusEnum.en_attente)
     montant_total: float = Field(default=0.0)
 
