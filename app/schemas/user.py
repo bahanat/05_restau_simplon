@@ -49,3 +49,4 @@ class UserUpdate(BaseModel):
     telephone: Optional[str] = None
     role_id: Optional[int] = None
     mot_de_passe: Optional[str] = Field(None, min_length=10, exclude=True)
+    email: Optional[EmailStr] = None

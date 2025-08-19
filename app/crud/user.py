@@ -51,7 +51,7 @@ def update_user(session: Session, user_id: int, user_data: UserUpdate) -> User |
     if not user:
         return None
 
-    update_data = user_data.dict(exclude_unset=True)
+    update_data = user_data.model_dump(exclude_unset=True)
 
     if "mot_de_passe" in update_data and update_data["mot_de_passe"]:
         update_data["mot_de_passe"] = hash_mdp(update_data["mot_de_passe"])
