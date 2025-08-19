@@ -20,12 +20,6 @@ fake = Faker("fr_FR")
 
 engine = create_engine(settings.DATABASE_URL, echo=False)
 
-print(
-    "---------------------------------------------------",
-    settings.DATABASE_URL,
-    "------------------------------",
-)
-
 
 # Utilisation de Faker pour la création de fausses données
 def create_fake_data() -> None:

@@ -10,12 +10,22 @@ from app.models.commandes_et_produits import (  # noqa: F401
 )
 from app.models.users_et_roles import Role, User  # noqa: F401
 
-engine = create_engine(settings.DATABASE_URL, echo=True)
 
-try:
-    with engine.connect() as conn:
-        print("Connected to DB successfully")
-except OperationalError as e:
-    print("Failed to connect:", e)
+def init_db(engine=None):
+    """Initialise la base de données (par défaut Postgres)."""
+    if engine is None:
+        engine = create_engine(settings.DATABASE_URL, echo=True)
 
-SQLModel.metadata.create_all(engine)
+    try:
+        with engine.connect() as conn:
+            print("Connexion à la base réussie.")
+    except OperationalError as e:
+        print("Connexion échouée :", e)
+        raise
+
+    SQLModel.metadata.create_all(engine)
+    return engine
+
+
+if __name__ == "__main__":
+    init_db()
