@@ -30,7 +30,7 @@ from app.schemas.user import UserCreate, UserUpdate
 from app.models.users_et_roles import Role, RoleEnum
 from sqlalchemy.exc import IntegrityError
 
-# creation role pour tests
+# --- creation role pour tests ---
 
 
 def ensure_role_exists(session, nom: RoleEnum) -> Role:
