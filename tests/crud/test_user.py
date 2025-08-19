@@ -1,10 +1,11 @@
 import pytest
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import SQLModel, Session, create_engine, select
 
 DATABASE_URL = "sqlite://"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 from app.models import users_et_roles, commandes_et_produits
+from app.models.commandes_et_produits import Commande, DetailCommande, Produit
 
 SQLModel.metadata.create_all(engine)
 
@@ -29,16 +30,32 @@ from app.schemas.user import UserCreate, UserUpdate
 from app.models.users_et_roles import Role, RoleEnum
 from sqlalchemy.exc import IntegrityError
 
+# creation role pour tests
+
+
+def ensure_role_exists(session, nom: RoleEnum) -> Role:
+    existing_role = session.exec(select(Role).where(Role.nom == nom)).first()
+    if existing_role:
+        return existing_role
+    role = Role(nom=nom)
+    session.add(role)
+    session.commit()
+    session.refresh(role)
+
+    return role
+
 
 # --- Test create_user ---
 def test_create_user(session):
+    role = ensure_role_exists(session, RoleEnum.client)
+
     user_data = UserCreate(
         nom="Alice",
         prenom="Test",
         email="alice@example.com",
         adresse="123 Rue Test",
         telephone="0123456789",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="securepass",
     )
 
@@ -54,6 +71,7 @@ def test_create_user(session):
 
 
 def test_get_all_users(session):
+    role = ensure_role_exists(session, RoleEnum.client)
 
     user1 = UserCreate(
         nom="User1",
@@ -61,7 +79,7 @@ def test_get_all_users(session):
         email="user1@example.com",
         adresse="Adresse 1",
         telephone="000111222",
-        role_id=2,
+        role_id=role.id,
         mot_de_passe="user1pass12345",
     )
     user2 = UserCreate(
@@ -88,13 +106,15 @@ def test_get_all_users(session):
 
 
 def test_get_user_by_id(session):
+    role = ensure_role_exists(session, RoleEnum.client)
+
     user_data = UserCreate(
         nom="izak",
         prenom="Tester",
         email="izak@example.com",
         adresse="456 Rue Exemple",
         telephone="9876543210",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="izaksecurepass",
     )
 
@@ -111,13 +131,15 @@ def test_get_user_by_id(session):
 
 
 def test_get_user_by_email(session):
+    role = ensure_role_exists(session, RoleEnum.client)
+
     user_data = UserCreate(
         nom="Harley",
         prenom="Testnom",
         email="harley@example.com",
         adresse="789 Rue Claire",
         telephone="1112223333",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="harleypassword",
     )
 
@@ -133,10 +155,7 @@ def test_get_user_by_email(session):
 
 
 def test_update_user(session):
-
-    role = Role(id=1, nom=RoleEnum.client)
-    session.add(role)
-    session.commit()
+    role = ensure_role_exists(session, RoleEnum.client)
 
     original_email = "david@example.com"
     new_email = "david.updated@example.com"
@@ -147,7 +166,7 @@ def test_update_user(session):
         email=original_email,
         adresse="Initial Address",
         telephone="0000000000",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="davidsecurepass",
     )
 
@@ -170,9 +189,7 @@ def test_update_user(session):
 
 def test_email_uniqueness_constraint(session):
 
-    role = Role(id=1, nom=RoleEnum.client)
-    session.add(role)
-    session.commit()
+    role = ensure_role_exists(session, RoleEnum.client)
 
     email = "duplicate@example.com"
 
@@ -182,7 +199,7 @@ def test_email_uniqueness_constraint(session):
         email=email,
         adresse="123 Rue",
         telephone="0123456789",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="alicepassword",
     )
 
@@ -192,7 +209,7 @@ def test_email_uniqueness_constraint(session):
         email=email,
         adresse="456 Avenue",
         telephone="0987654321",
-        role_id=1,
+        role_id=role.id,
         mot_de_passe="bobpassword",
     )
 
@@ -200,3 +217,57 @@ def test_email_uniqueness_constraint(session):
 
     with pytest.raises(IntegrityError):
         create_user(session, user2)
+
+
+def test_delete_user(session):
+
+    role = ensure_role_exists(session, RoleEnum.client)
+
+    user_data = UserCreate(
+        nom="Eva",
+        prenom="Delete",
+        email="eva.to.delete@example.com",
+        adresse="123 Rue Suppression",
+        telephone="123123123",
+        role_id=role.id,
+        mot_de_passe="secreteva1234",
+    )
+    user = create_user(session, user_data)
+
+    produit = Produit(nom="Pizza Margherita", prix=10.0, stock=50)
+    session.add(produit)
+    session.commit()
+
+    commande = Commande(client_id=user.id)
+    session.add(commande)
+    session.commit()
+
+    detail = DetailCommande(commande_id=commande.id, produit_id=produit.id, quantite=2)
+    session.add(detail)
+    session.commit()
+
+    assert (
+        session.exec(select(Commande).where(Commande.client_id == user.id)).first()
+        is not None
+    )
+    assert (
+        session.exec(
+            select(DetailCommande).where(DetailCommande.commande_id == commande.id)
+        ).first()
+        is not None
+    )
+
+    deleted = delete_user(session, user.id)
+
+    assert deleted is True
+    assert get_user_by_id(session, user.id) is None
+    assert (
+        session.exec(select(Commande).where(Commande.client_id == user.id)).first()
+        is None
+    )
+    assert (
+        session.exec(
+            select(DetailCommande).where(DetailCommande.commande_id == commande.id)
+        ).first()
+        is None
+    )
