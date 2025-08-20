@@ -27,7 +27,8 @@ def get_categorie_by_id(session: Session, categorie_id: int) -> Categorie | None
 
 # --- Read (par nom) ---
 def get_categorie_by_nom(session: Session, categorie_nom: str) -> Categorie | None:
-    return session.get(Categorie, categorie_nom)
+    statement = select(Categorie).where(Categorie.nom == categorie_nom)
+    return session.exec(statement).first()
 
 
 # --- Update ---
