@@ -1,3 +1,4 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 from sqlalchemy.engine import URL
 
@@ -20,8 +21,7 @@ class Settings(BaseSettings):
             database=self.POSTGRES_DB,
         )
 
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env")
 
 
 settings = Settings()

@@ -17,11 +17,11 @@ services:
       interval: 2s
       retries: 15
 
-  tables:
+  db-init:
     build:
       context: .
-      dockerfile: app/db/scripts/Dockerfile.tables
-    container_name: mytables
+      dockerfile: app/db/scripts/Dockerfile.init
+    container_name: db-init
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -49,7 +49,7 @@ services:
     networks:
       - mynet
     depends_on:
-      tables:
+      db-init:
         condition: service_completed_successfully
     restart: "no"
 

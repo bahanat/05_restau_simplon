@@ -12,3 +12,6 @@ black
 flake8
 isort
 mypy
+httpx
+pytest
+pytest-cov
