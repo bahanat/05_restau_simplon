@@ -10,7 +10,6 @@ restausimplon/
 │   │
 │   ├── api/
 │   │   ├── v1/
-│   │   │   ├── __init__.py
 │   │   │   ├── categorie.py            # Routes Catégories
 │   │   │   ├── commande.py             # Routes Commandes
 │   │   │   ├── produit.py              # Routes Produits
