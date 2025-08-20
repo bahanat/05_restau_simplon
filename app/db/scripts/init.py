@@ -18,7 +18,9 @@ def init_db(engine=None):
 
     try:
         with engine.connect() as conn:
-            print("Connexion à la base réussie.")
+            version = conn.exec_driver_sql("SELECT version();").scalar()
+            print("Connexion à la base réussie. Version:", version)
+
     except OperationalError as e:
         print("Connexion échouée :", e)
         raise

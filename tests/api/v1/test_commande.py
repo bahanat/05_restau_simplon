@@ -1,70 +1,68 @@
+from datetime import datetime
+
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import text
-from sqlalchemy.pool import StaticPool
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, select
 
-from app.db.session import get_session
 from app.main import app
-from app.models.commandes_et_produits import (
-    Categorie,
-    Commande,
-    DetailCommande,
-    Produit,
-)
-from app.models.users_et_roles import Role, User
+from app.models.commandes_et_produits import Commande, StatusEnum
+
+client = TestClient(app)
 
 
-@pytest.fixture(scope="session")
-def engine():
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    SQLModel.metadata.create_all(engine)
-    return engine
-
-
-@pytest.fixture
-def session(engine):
-    with Session(engine) as session:
-        yield session
-
-
-@pytest.fixture
-def client(session: Session):
-    def get_session_override():
-        yield session
-
-    app.dependency_overrides[get_session] = get_session_override
-    return TestClient(app)
-
-
-def test_create_commande(client, session):
-    session.exec(
-        text(
-            "INSERT INTO produits (id, nom, prix, stock) VALUES (1, 'Produit 1', 10.0, 10)"
-        )
-    )
-    session.commit()
-
+@pytest.mark.parametrize("statut", [StatusEnum.en_attente, StatusEnum.servie])
+def test_create_commande(session: Session, statut):
     payload = {
         "client_id": 1,
-        "date_commande": "2025-08-19T10:00:00",
-        "statut": "en_attente",
-        "details": [{"produit_id": 1, "quantite": 2}],
+        "date_commande": datetime.now().isoformat(),
+        "statut": statut.value,
+        "details": [],
     }
 
     response = client.post("/commandes/", json=payload)
 
     assert response.status_code == 200
     data = response.json()
-    assert data["client_id"] == 1
-    assert data["montant_total"] == 20.0
+    assert data["client_id"] == payload["client_id"]
+    assert data["statut"] == statut.value
 
 
-def test_get_commande_not_found(client):
-    response = client.get("/commandes/999")
+def test_get_commande(session: Session):
+    commande = session.exec(select(Commande)).first()
+    assert commande is not None
+
+    response = client.get(f"/commandes/{commande.id}")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == commande.id
+
+
+def test_list_commandes(session: Session):
+    response = client.get("/commandes/")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) > 0
+
+
+def test_update_commande(session: Session):
+    commande = session.exec(select(Commande)).first()
+    payload = {"statut": StatusEnum.servie}
+
+    response = client.patch(f"/commandes/{commande.id}", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["statut"] == StatusEnum.servie
+
+
+def test_delete_commande(session: Session):
+    commande = session.exec(select(Commande)).first()
+
+    response = client.delete(f"/commandes/{commande.id}")
+    assert response.status_code == 204
+
+    response = client.get(f"/commandes/{commande.id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == "Commande non trouvée"

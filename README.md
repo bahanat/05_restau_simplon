@@ -33,9 +33,9 @@ restausimplon/
 │   ├── db
 │   │   ├── scripts/
 │   │   │   ├── Dockerfile.data         # Dockerfile pour la création et insertion des données test
-│   │   │   ├── Dockerfile.tables       # Dockerfile pour la création des tables
+│   │   │   ├── Dockerfile.init         # Dockerfile pour la création des tables
 │   │   │   ├── fake_data.py            # Script de création et insertion des données test
-│   │   │   ├── tables_creation.py      # Script pour la création des tables (basées sur les SQL Models)
+│   │   │   ├── init.py                 # Script pour la création des tables (basées sur les SQL Models)
 │   │   │
 │   │   ├── session.py                  # Connexion DB (engine, session)
 │   │   ├── base.py                     # Import global des modèles pour Alembic
@@ -58,14 +58,25 @@ restausimplon/
 │   ├── Dockerfile.api                  # Dockerfile pour l'image de l'API
 │   ├── main.py                         # Point d'entrée FastAPI
 │
+├── tests/                              # Fichiers de tests, même structure que l'app/
+│   │
+│   ├── api/
+│   ├── crud/
+│   ├── db/
+│   ├── ...
+│   ├── conftest.py                     # Fichier de fixtures pour les tests (session et engine spécifiques)
+│
 ├── .dockerignore
 ├── .env                                # Variables d'environnement
 ├── .flake8                             # Config de Flake
 ├── .gitignore
-├── docker-compose.yml
+├── docker-compose.test.yml             # Docker Compose spécifique aux tests (avec DB de test)
+├── docker-compose.yml                  # Docker Compose de l'app en version prod
+├── Dockerfile.test                     # Dockerfile pour l'image des fichiers tests/
 ├── LICENSE
 ├── Makefile                            # Makefile pour le formattage du code et tests
 ├── pyproject.toml                      # Configs de Black, isort, mypy
+├── pytest.ini                          # Configs de Black, isort, mypy
 ├── README.md
 ├── requirements.txt                    # Dépendances Python
 ├── template.env                        # Fichier d'exemple pour le .env
