@@ -6,8 +6,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=my-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mynet
     volumes:
@@ -17,15 +17,17 @@ services:
       interval: 2s
       retries: 15
 
-  tables:
+  db-init:
     build:
       context: .
-      dockerfile: app/db/scripts/Dockerfile.tables
-    container_name: mytables
+      dockerfile: app/db/scripts/Dockerfile.init
+    container_name: db-init
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=my-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mynet
     depends_on:
@@ -39,13 +41,15 @@ services:
       dockerfile: app/db/scripts/Dockerfile.data
     container_name: myfakedata
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=my-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mynet
     depends_on:
-      tables:
+      db-init:
         condition: service_completed_successfully
     restart: "no"
 
@@ -55,9 +59,11 @@ services:
       dockerfile: app/Dockerfile.api
     container_name: myapi
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=my-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mynet
     ports:

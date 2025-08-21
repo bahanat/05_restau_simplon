@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -48,3 +49,4 @@ class UserUpdate(BaseModel):
     telephone: Optional[str] = None
     role_id: Optional[int] = None
     mot_de_passe: Optional[str] = Field(None, min_length=10, exclude=True)
+    email: Optional[EmailStr] = None

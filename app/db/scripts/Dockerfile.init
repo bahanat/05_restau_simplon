@@ -9,4 +9,4 @@ COPY . .
 
 RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 
-CMD ["sh", "-c", "until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT; do sleep 1; done && python -m app.db.scripts.tables_creation"]
+CMD ["sh", "-c", "until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT; do sleep 1; done && python -m app.db.scripts.init"]

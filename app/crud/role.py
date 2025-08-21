@@ -1,11 +1,23 @@
+from collections.abc import Sequence
+from typing import Optional
+
 from sqlmodel import Session, select
-from typing import List, Optional
 
 from app.models.users_et_roles import Role, User
 from app.schemas.role import RoleCreate, RoleUpdate
 
 
+# --- Create ---
 def role_creation(session: Session, role_data: RoleCreate) -> Role:
+    """Crée un nouveau rôle dans la base de données.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        role_data (RoleCreate): Les données du rôle à créer.
+
+    Returns:
+        Role: L'instance du rôle créé.
+    """
     role = Role(nom=role_data.nom)
     session.add(role)
     session.commit()
@@ -13,17 +25,47 @@ def role_creation(session: Session, role_data: RoleCreate) -> Role:
     return role
 
 
-def get_all_roles(session: Session) -> List[Role]:
+# --- Read ---
+def get_all_roles(session: Session) -> Sequence[Role]:
+    """Récupère tous les rôles présents dans la base de données.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+
+    Returns:
+        Sequence[Role]: Une séquence contenant tous les rôles.
+    """
     return session.exec(select(Role)).all()
 
 
+# --- Read (par id) ---
 def get_role_by_id(session: Session, role_id: int) -> Optional[Role]:
+    """Récupère un rôle par son ID.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        role_id (int): L'ID du rôle à récupérer.
+
+    Returns:
+        Optional[Role]: L'instance du rôle si trouvée, sinon None.
+    """
     return session.get(Role, role_id)
 
 
+# --- Update ---
 def update_role(
     session: Session, role_id: int, role_data: RoleUpdate
 ) -> Optional[Role]:
+    """Met à jour un rôle existant.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        role_id (int): L'ID du rôle à mettre à jour.
+        role_data (RoleUpdate): Les données à mettre à jour.
+
+    Returns:
+        Optional[Role]: L'instance du rôle mise à jour si elle existe, sinon None.
+    """
     role = session.get(Role, role_id)
     if not role:
         return None
@@ -38,10 +80,24 @@ def update_role(
     return role
 
 
-def delete_role(session: Session, role_id: int) -> Optional[List[int]]:
+# --- Delete ---
+def delete_role(session: Session, role_id: int) -> list[int | None]:
+    """Supprime un rôle et dissocie tous les utilisateurs associés.
+
+    Avant suppression, tous les utilisateurs ayant ce rôle voient leur `role_id`
+    remis à None.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        role_id (int): L'ID du rôle à supprimer.
+
+    Returns:
+        list[int | None]: La liste des IDs des utilisateurs affectés par la suppression.
+                          Retourne une liste vide si le rôle n'existe pas.
+    """
     role = session.get(Role, role_id)
     if not role:
-        return None
+        return []
 
     users_with_role = session.exec(select(User).where(User.role_id == role_id)).all()
 

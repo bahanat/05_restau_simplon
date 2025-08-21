@@ -1,18 +1,18 @@
 # RESTau Simplon
 
 ## Système de gestion de commandes pour un restaurant
+Application FastAPI avec gestion des utilisateurs, rôles, catégories, produits et commandes.
 
-### Structure du projet
+## Structure du projet
 ```bash
 restausimplon/
 │
 ├── app/
-│   │
 │   ├── api/
 │   │   ├── v1/
-│   │   │   ├── __init__.py
 │   │   │   ├── categorie.py            # Routes Catégories
 │   │   │   ├── commande.py             # Routes Commandes
+│   │   │   ├── login.py                # Routes Login
 │   │   │   ├── produit.py              # Routes Produits
 │   │   │   ├── role.py                 # Routes Rôles
 │   │   │   ├── user.py                 # Routes Users
@@ -28,17 +28,18 @@ restausimplon/
 │   │   ├── commande.py                 # Fonctions CRUD Commandes
 │   │   ├── details.py                  # Fonctions CRUD Détails
 │   │   ├── produit.py                  # Fonctions CRUD Produits
+│   │   ├── role.py                     # Fonctions CRUD Rôles
 │   │   ├── user.py                     # Fonctions CRUD Users
 │   │
 │   ├── db
 │   │   ├── scripts/
 │   │   │   ├── Dockerfile.data         # Dockerfile pour la création et insertion des données test
-│   │   │   ├── Dockerfile.tables       # Dockerfile pour la création des tables
+│   │   │   ├── Dockerfile.init         # Dockerfile pour la création des tables
 │   │   │   ├── fake_data.py            # Script de création et insertion des données test
-│   │   │   ├── tables_creation.py      # Script pour la création des tables (basées sur les SQL Models)
+│   │   │   ├── init.py                 # Script pour la création des tables (basées sur les SQL Models)
 │   │   │
-│   │   ├── session.py                  # Connexion DB (engine, session)
 │   │   ├── base.py                     # Import global des modèles pour Alembic
+│   │   ├── session.py                  # Connexion DB (engine, session)
 │   │
 │   ├── models/
 │   │   ├── commandes_et_produits.py    # Modèles SQLModel pour les produits, commandes et leurs détails
@@ -58,35 +59,54 @@ restausimplon/
 │   ├── Dockerfile.api                  # Dockerfile pour l'image de l'API
 │   ├── main.py                         # Point d'entrée FastAPI
 │
+├── static/
+│   ├── logo.png
+│
+├── tests/                              # Fichiers de tests, même structure que l'app/
+│   ├── api/
+│   ├── crud/
+│   ├── db/
+│   ├── ...
+│   ├── conftest.py                     # Fichier de fixtures pour les tests (session et engine spécifiques)
+│
 ├── .dockerignore
 ├── .env                                # Variables d'environnement
+├── .flake8                             # Config de Flake
 ├── .gitignore
-├── docker-compose.yml
+├── docker-compose.test.yml             # Docker Compose spécifique aux tests (avec DB de test)
+├── docker-compose.yml                  # Docker Compose de l'app en version prod
+├── Dockerfile.test                     # Dockerfile pour l'image des fichiers tests/
 ├── LICENSE
+├── Makefile                            # Makefile pour le formattage du code et tests
+├── pyproject.toml                      # Configs de Black, isort, mypy
+├── pytest.ini                          # Config de Pytest
 ├── README.md
 ├── requirements.txt                    # Dépendances Python
 ├── template.env                        # Fichier d'exemple pour le .env
 ```
 
-### Utilisation de l'application
+## Installation & utilisation
 
-0. Créer et remplir le fichier `.env`, voir le `template.env`
+### 0. Préparer l’environnement
+1. Copier le fichier `.env` depuis le `template.env` et remplir les variables nécessaires.
+```bash
+cp template.env .env
+```
 
 <hr>
 
-#### Option 1 - Lancement avec `Docker` (sans utiliser de docker-compose)
-
-1. Création du réseau pour les conteneurs Docker
+### Option 1 – Avec Docker seul
+1. Créer le réseau Docker :
 ```bash
 docker network create mynet
 ```
 
-2. Téléchargement de la dernière version de l'image `Postgres` officielle
+2. Télécharger l'image Postgres :
 ```bash
 docker pull postgres:15.6
 ```
 
-3. Lancement de l'image Postgres avec les bons paramètres
+3. Lancer Postgres :
 ```bash
 docker run -d \
   --name my-postgres \
@@ -95,47 +115,114 @@ docker run -d \
   -v pgdata:/var/lib/postgresql/data \
   postgres
 ```
-Possibilité d'ajouter la ligne `-p 5432:5432` si vous comptez consulter la BDD depuis DBeaver ou autre outil (en dehors du réseau Docker `mynet`), elle peut d'ailleurs causer des problèmes de ports si vous avez déjà un `Postgres` en local ou de sécurité.
 
-4. Construction des images à partir des différents `Dockerfiles`
+4. Construire les images nécessaires :
 - Pour le script de création des tables (en se basant sur les `SQL Models`) :
 ```bash
 docker build -f app/db/scripts/Dockerfile.tables -t mytables .
-```
-
-- Pour le script de création et insertion de données de test (avec `Faker`) :
-```bash
 docker build -f app/db/scripts/Dockerfile.data -t myfakedata .
-```
-
-- Puis pour l'API :
-```bash
 docker build -f app/Dockerfile.api -t myapi .
 ```
 
-5. Lancement des images précédemment construites (ordre à respecter ici)
+5. Lancer les conteneurs dans l’ordre :
 ```bash
 docker run -d --name mytables --env-file .env --network mynet mytables
-```
-
-```bash
 docker run -d --name myfakedata --env-file .env --network mynet myfakedata
-```
-
-```bash
 docker run -d --name myapi --env-file .env --network mynet -p 8000:8000  myapi
 ```
 
 <hr>
 
-#### Option 2 - Lancement avec un `docker-compose.yml`
-
-1. Lancement du `docker-compose` qui orchestre la construction et le lancement des différentes images
+### Option 2 – Avec Docker Compose
 ```bash
 docker compose up --build
 ```
 
-<hr>
-
 - Accès à l’API : http://127.0.0.1:8000  
 - Documentation interactive Swagger : http://127.0.0.1:8000/docs
+
+<hr>
+
+## Tests
+
+1. Lancer le conteneur Postgres de test :
+```bash
+docker compose -f docker-compose.test.yml up -d my-test-postgres
+```
+
+2. Initialiser la base de test et insérer des données fake :
+```bash
+docker compose -f docker-compose.test.yml run --rm db-init
+```
+
+3. Exécuter les tests :
+```bash
+docker compose -f docker-compose.test.yml run --rm tests
+```
+
+<hr>
+
+## CI/CD
+
+Le projet inclut un workflow GitHub Actions décomposé en :
+- CI : branch `develop`
+  - Lint, formatage, type-check, tests unitaires.
+  - La fusion sur `develop` est bloquée tant que la CI ne passe pas (via branch protection rules).
+
+- CD : branch `main`
+  - Déploiement automatique via Docker Compose.
+
+<hr>
+
+## API Documentation
+
+### Rôles
+| Méthode | Endpoint           | Description                      | Paramètres                                | Retour                                       |
+| ------- | ------------------ | -------------------------------- | ----------------------------------------- | -------------------------------------------- |
+| POST    | `/roles/`          | Crée un nouveau rôle utilisateur | `role_data` (RoleCreate)                  | RoleRead                                     |
+| GET     | `/roles/`          | Récupère tous les rôles          | —                                         | List\[RoleRead]                              |
+| GET     | `/roles/{role_id}` | Récupère un rôle par ID          | `role_id` (int)                           | RoleRead                                     |
+| PUT     | `/roles/{role_id}` | Met à jour un rôle existant      | `role_id` (int), `role_data` (RoleUpdate) | RoleRead                                     |
+| DELETE  | `/roles/{role_id}` | Supprime un rôle par ID          | `role_id` (int)                           | dict: message, utilisateurs\_affectés, count |
+
+### Users
+| Méthode | Endpoint           | Description                    | Paramètres                                | Retour          |
+| ------- | ------------------ | ------------------------------ | ----------------------------------------- | --------------- |
+| POST    | `/users/`          | Crée un nouvel utilisateur     | `user_data` (UserCreate)                  | UserRead        |
+| GET     | `/users/`          | Récupère tous les utilisateurs | —                                         | List\[UserRead] |
+| GET     | `/users/{user_id}` | Récupère un utilisateur par ID | `user_id` (int)                           | UserRead        |
+| PUT     | `/users/{user_id}` | Met à jour un utilisateur      | `user_id` (int), `user_data` (UserUpdate) | UserRead        |
+| DELETE  | `/users/{user_id}` | Supprime un utilisateur        | `user_id` (int)                           | None            |
+
+### Authentification / Login
+| Méthode | Endpoint | Description                | Paramètres         | Retour            |
+| ------- | -------- | -------------------------- | ------------------ | ----------------- |
+| POST    | `/login` | Authentifie un utilisateur | `body` (UserLogin) | UserLoginResponse |
+
+
+### Catégories
+| Méthode | Endpoint                     | Description                 | Paramètres                                     | Retour               |
+| ------- | ---------------------------- | --------------------------- | ---------------------------------------------- | -------------------- |
+| POST    | `/categories/`               | Crée une catégorie          | `data` (CategorieCreate)                       | CategorieRead        |
+| GET     | `/categories/`               | Liste toutes les catégories | —                                              | List\[CategorieRead] |
+| GET     | `/categories/{categorie_id}` | Récupère une catégorie      | `categorie_id` (int)                           | CategorieRead        |
+| PUT     | `/categories/{categorie_id}` | Met à jour une catégorie    | `categorie_id` (int), `data` (CategorieUpdate) | CategorieRead        |
+| DELETE  | `/categories/{categorie_id}` | Supprime une catégorie      | `categorie_id` (int)                           | None                 |
+
+### Produits
+| Méthode | Endpoint                 | Description             | Paramètres                                 | Retour             |
+| ------- | ------------------------ | ----------------------- | ------------------------------------------ | ------------------ |
+| POST    | `/produits/`             | Crée un produit         | `data` (ProduitCreate)                     | ProduitRead        |
+| GET     | `/produits/`             | Liste tous les produits | —                                          | List\[ProduitRead] |
+| GET     | `/produits/{produit_id}` | Récupère un produit     | `produit_id` (int)                         | ProduitRead        |
+| PUT     | `/produits/{produit_id}` | Met à jour un produit   | `produit_id` (int), `data` (ProduitUpdate) | ProduitRead        |
+| DELETE  | `/produits/{produit_id}` | Supprime un produit     | `produit_id` (int)                         | None               |
+
+### Commandes
+| Méthode | Endpoint                   | Description                            | Paramètres                                              | Retour              |
+| ------- | -------------------------- | -------------------------------------- | ------------------------------------------------------- | ------------------- |
+| POST    | `/commandes/`              | Crée une commande                      | `commande_data` (CommandeCreate)                        | CommandeRead        |
+| GET     | `/commandes/{commande_id}` | Récupère une commande par ID           | `commande_id` (int)                                     | CommandeRead        |
+| GET     | `/commandes/`              | Liste toutes les commandes ou filtrées | `client_id`, `date_commande`, `statut`                  | List\[CommandeRead] |
+| PATCH   | `/commandes/{commande_id}` | Met à jour une commande                | `commande_id` (int), `commande_update` (CommandeUpdate) | CommandeRead        |
+| DELETE  | `/commandes/{commande_id}` | Supprime une commande                  | `commande_id` (int)                                     | None                |

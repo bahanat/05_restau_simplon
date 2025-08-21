@@ -1,16 +1,27 @@
-from sqlmodel import Session, select
+from collections.abc import Sequence
 from typing import Optional
-from app.core.security import hash_mdp
+
+from sqlmodel import Session, select
+
+from app.core.security import hash_password
+from app.models.commandes_et_produits import Commande, DetailCommande
 from app.models.users_et_roles import User
-from app.models.commandes_et_produits import (
-    Commande,
-    DetailCommande,
-)
 from app.schemas.user import UserCreate, UserUpdate
 
 
 # --- Create ---
 def create_user(session: Session, user_data: UserCreate) -> User:
+    """Crée un nouvel utilisateur dans la base de données.
+
+    Le mot de passe est automatiquement haché avant insertion.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        user_data (UserCreate): Les données de l'utilisateur à créer.
+
+    Returns:
+        User: L'instance de l'utilisateur créé.
+    """
     user = User(
         nom=user_data.nom,
         prenom=user_data.prenom,
@@ -18,7 +29,7 @@ def create_user(session: Session, user_data: UserCreate) -> User:
         adresse=user_data.adresse,
         telephone=user_data.telephone,
         role_id=user_data.role_id,
-        mot_de_passe=hash_mdp(user_data.mot_de_passe),
+        mot_de_passe=hash_password(user_data.mot_de_passe),
     )
 
     session.add(user)
@@ -28,30 +39,68 @@ def create_user(session: Session, user_data: UserCreate) -> User:
 
 
 # --- Read ---
-def get_all_users(session: Session) -> list[User]:
+def get_all_users(session: Session) -> Sequence[User]:
+    """Récupère tous les utilisateurs de la base de données.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+
+    Returns:
+        Sequence[User]: Une séquence contenant tous les utilisateurs.
+    """
     return session.exec(select(User)).all()
 
 
 # --- Read (par id) ---
 def get_user_by_id(session: Session, user_id: int) -> User | None:
+    """Récupère un utilisateur par son ID.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        user_id (int): L'ID de l'utilisateur à récupérer.
+
+    Returns:
+        User | None: L'utilisateur si trouvé, sinon None.
+    """
     return session.get(User, user_id)
 
 
 # --- Read (par email) ---
 def get_user_by_email(session: Session, email: str) -> Optional[User]:
+    """Récupère un utilisateur par son adresse e-mail.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        email (str): L'adresse e-mail de l'utilisateur.
+
+    Returns:
+        Optional[User]: L'utilisateur si trouvé, sinon None.
+    """
     return session.exec(select(User).where(User.email == email)).first()
 
 
 # --- Update ---
 def update_user(session: Session, user_id: int, user_data: UserUpdate) -> User | None:
+    """Met à jour les informations d'un utilisateur existant.
+
+    Le mot de passe est automatiquement haché si fourni dans les données.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        user_id (int): L'ID de l'utilisateur à mettre à jour.
+        user_data (UserUpdate): Les données à mettre à jour.
+
+    Returns:
+        User | None: L'utilisateur mis à jour si trouvé, sinon None.
+    """
     user = session.get(User, user_id)
     if not user:
         return None
 
-    update_data = user_data.dict(exclude_unset=True)
+    update_data = user_data.model_dump(exclude_unset=True)
 
     if "mot_de_passe" in update_data and update_data["mot_de_passe"]:
-        update_data["mot_de_passe"] = hash_mdp(update_data["mot_de_passe"])
+        update_data["mot_de_passe"] = hash_password(update_data["mot_de_passe"])
 
     for key, value in update_data.items():
         setattr(user, key, value)
@@ -64,6 +113,17 @@ def update_user(session: Session, user_id: int, user_data: UserUpdate) -> User |
 
 # --- Delete ---
 def delete_user(session: Session, user_id: int) -> bool:
+    """Supprime un utilisateur et toutes ses commandes associées.
+
+    Supprime également tous les détails de commande liés aux commandes de l'utilisateur.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        user_id (int): L'ID de l'utilisateur à supprimer.
+
+    Returns:
+        bool: True si l'utilisateur a été supprimé, False si l'utilisateur n'existe pas.
+    """
     user = session.get(User, user_id)
     if not user:
         return False

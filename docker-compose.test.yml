@@ -1,0 +1,65 @@
+services:
+  my-test-postgres:
+    image: postgres:15.6
+    environment:
+      - POSTGRES_USER=mytestuser
+      - POSTGRES_PASSWORD=mytestpassword
+      - POSTGRES_DB=mytestdb
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
+    networks:
+      - mytestnet
+    volumes:
+      - pgdata_testdb:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mytestuser -d mytestdb -h my-test-postgres"]
+      interval: 2s
+      retries: 15
+      start_period: 30s
+
+
+  db-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - POSTGRES_USER=mytestuser
+      - POSTGRES_PASSWORD=mytestpassword
+      - POSTGRES_DB=mytestdb
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
+    networks:
+      - mytestnet
+    depends_on:
+      my-test-postgres:
+        condition: service_healthy
+    command: >
+      sh -c "python -m app.db.scripts.init && 
+             python -m app.db.scripts.fake_data"
+
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - POSTGRES_USER=mytestuser
+      - POSTGRES_PASSWORD=mytestpassword
+      - POSTGRES_DB=mytestdb
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
+    networks:
+      - mytestnet
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    command: >
+      sh -c "pytest -vv --maxfail=1"
+
+
+networks:
+  mytestnet:
+    driver: bridge
+
+volumes:
+  pgdata_testdb:

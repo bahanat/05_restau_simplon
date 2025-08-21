@@ -1,16 +1,12 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from datetime import datetime
 
-from app.api.v1 import categorie, produit
-from app.api.v1 import user
-from app.api.v1 import commande
-from app.api.v1 import role
-from app.api.v1 import logins
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
+from app.api.v1 import categorie, commande, login, produit, role, user
 
-app = FastAPI(title="RESTAU_SIMPLON 🍽️")
+app = FastAPI(title="API RESTau Simplon 🍽️")
 
 # Inclusion des routes de l'API v1
 app.include_router(categorie.router)
@@ -18,7 +14,7 @@ app.include_router(produit.router)
 app.include_router(user.router)
 app.include_router(commande.router)
 app.include_router(role.router)
-app.include_router(logins.router)
+app.include_router(login.router)
 
 
 # Montre le dossier static à l'URL /static
@@ -26,15 +22,16 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
-def read_root():
+def read_root() -> str:
     return f"""
     <html>
         <head>
-            <title>RESTAU_SIMPLON</title>
+            <title>API RESTau Simplon</title>
             <style>
                 body {{
                     background-color: #f8f9fa;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
+                        sans-serif;
                     text-align: center;
                     padding: 50px;
                     color: #333;
@@ -71,11 +68,14 @@ def read_root():
         <body>
             <div class="card">
                 <img src="/static/logo.png" alt="Logo RESTAU_SIMPLON"/>
-                <h1>Bienvenue sur RESTAU_SIMPLON 🍽️</h1>
+                <h1>Bienvenue sur l'API RESTau Simplon 🍽️</h1>
                 <p><strong>Version :</strong> 1.0</p>
-                <p><strong>Auteur :</strong> Izak | Anathole | HARLEY</p>
+                <p><strong>Auteur :</strong> Izak | Anatole | Harley</p>
                 <p><a href="/docs">📚 Accéder à la documentation Swagger</a></p>
-                <p><em>Horodatage :</em> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <p><em>Horodatage :</em> {
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                </p>
             </div>
         </body>
     </html>
