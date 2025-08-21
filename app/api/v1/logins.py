@@ -21,4 +21,4 @@ def login(
             detail="identifiant errone",
         )
 
-    return UserLoginResponse(message="Login OK", user=UserPublic.from_orm(user))
+    return UserLoginResponse(message="Login OK", user=UserPublic.model_validate(user))
