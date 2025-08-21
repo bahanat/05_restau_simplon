@@ -7,7 +7,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def unique_email(prefix : str ="user") -> str:
+def unique_email(prefix: str = "user") -> str:
     return f"{prefix}_{uuid4().hex}@example.com"
 
 

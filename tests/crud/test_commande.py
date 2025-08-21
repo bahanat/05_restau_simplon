@@ -12,7 +12,7 @@ def test_create_commande(session: Session) -> None:
         client_id=1,
         statut=StatusEnum.en_attente,
         date_commande=datetime.now(),
-        details=[DetailsCreate(produit_id=1, quantite=2)]
+        details=[DetailsCreate(produit_id=1, quantite=2)],
     )
     commande = crud_commande.create_commande(session, commande_data)
     assert commande.id is not None
@@ -30,14 +30,13 @@ def test_update_commande(session: Session) -> None:
     update_data = CommandeUpdate(statut=StatusEnum.servie)
     updated = crud_commande.update_commande(session, 1, update_data)
     assert updated is not None
-    
 
 
 def test_delete_commande(session: Session) -> None:
     commande_data = CommandeCreate(
         client_id=1,
         date_commande=datetime.now(),
-        details=[DetailsCreate(produit_id=1, quantite=5)]
+        details=[DetailsCreate(produit_id=1, quantite=5)],
     )
     commande = crud_commande.create_commande(session, commande_data)
     assert commande.id is not None

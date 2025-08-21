@@ -11,7 +11,7 @@ client = TestClient(app)
 
 
 @pytest.mark.parametrize("statut", [StatusEnum.en_attente, StatusEnum.servie])
-def test_create_commande(session: Session, statut:StatusEnum) -> None:
+def test_create_commande(session: Session, statut: StatusEnum) -> None:
     payload = {
         "client_id": 1,
         "date_commande": datetime.now().isoformat(),
@@ -61,7 +61,7 @@ def test_update_commande(session: Session) -> None:
 
 def test_delete_commande(session: Session) -> None:
     commande = session.exec(select(Commande)).first()
-    assert commande is not None 
+    assert commande is not None
     response = client.delete(f"/commandes/{commande.id}")
     assert response.status_code == 204
 

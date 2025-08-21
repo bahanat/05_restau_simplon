@@ -1,5 +1,6 @@
-from sqlmodel import Session, select
 from collections.abc import Sequence
+
+from sqlmodel import Session, select
 
 from app.models.users_et_roles import Role, User
 from app.schemas.role import RoleCreate, RoleUpdate
