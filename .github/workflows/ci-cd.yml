@@ -51,7 +51,7 @@ jobs:
         run: |
           for i in {1..30}; do
             if docker compose -f docker-compose.test.yml exec -T my-test-postgres \
-              pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST; then
+              pg_isready -U $TEST_POSTGRES_USER -d $TEST_POSTGRES_DB -h $TEST_POSTGRES_HOST; then
               echo "Database is ready!"
               break
             fi
