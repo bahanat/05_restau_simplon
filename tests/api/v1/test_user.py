@@ -8,10 +8,16 @@ client = TestClient(app)
 
 
 def unique_email(prefix: str = "user") -> str:
+    """Génère un email unique pour les tests à partir d'un préfixe donné."""
     return f"{prefix}_{uuid4().hex}@example.com"
 
 
 def test_create_user_endpoint() -> None:
+    """Teste la création d'un utilisateur via POST /users/.
+
+    - Vérifie que l'utilisateur est créé avec succès (201).
+    - Vérifie que l'ID, l'email, le nom, le prénom et le role_id sont corrects.
+    """
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -40,6 +46,11 @@ def test_create_user_endpoint() -> None:
 
 
 def test_read_users_endpoint() -> None:
+    """Teste la récupération de tous les utilisateurs via GET /users/.
+
+    - Crée deux utilisateurs distincts.
+    - Vérifie que la réponse contient les emails de ces utilisateurs.
+    """
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -75,6 +86,11 @@ def test_read_users_endpoint() -> None:
 
 
 def test_read_user_endpoint() -> None:
+    """Teste la récupération d'un utilisateur via GET /users/{id}.
+
+    - Vérifie que l'utilisateur créé est correctement récupéré.
+    - Vérifie que l'accès à un utilisateur inexistant renvoie 404.
+    """
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -108,6 +124,11 @@ def test_read_user_endpoint() -> None:
 
 
 def test_update_user_endpoint() -> None:
+    """Teste la mise à jour d'un utilisateur via PUT /users/{id}.
+
+    - Vérifie que l'email et l'adresse peuvent être mises à jour.
+    - Vérifie que la mise à jour d'un utilisateur inexistant renvoie 404.
+    """
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -149,6 +170,11 @@ def test_update_user_endpoint() -> None:
 
 
 def test_delete_user_endpoint() -> None:
+    """Teste la suppression d'un utilisateur via DELETE /users/{id}.
+
+    - Vérifie que la suppression renvoie 204.
+    - Vérifie que l'utilisateur n'existe plus après suppression.
+    """
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]

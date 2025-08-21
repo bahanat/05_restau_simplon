@@ -10,6 +10,11 @@ from app.schemas.commande import (
 
 
 def test_commande_create_valid() -> None:
+    """
+    Vérifie la création valide d'une instance de CommandeCreate
+    à partir d'un dictionnaire.
+    S'assure que les champs sont correctement initialisés, y compris les détails.
+    """
     payload = {
         "client_id": 1,
         "date_commande": "2025-08-19T10:00:00",
@@ -26,6 +31,10 @@ def test_commande_create_valid() -> None:
 
 
 def test_commande_create_invalid_statut() -> None:
+    """
+    Vérifie que la création d'une commande avec un statut invalide
+    lève bien une ValidationError.
+    """
     payload = {
         "client_id": 1,
         "statut": "invalide",
@@ -36,6 +45,10 @@ def test_commande_create_invalid_statut() -> None:
 
 
 def test_commande_read_from_dict() -> None:
+    """
+    Vérifie la création d'une instance de CommandeRead depuis un dictionnaire complet
+    et s'assure que tous les champs sont correctement interprétés.
+    """
     payload = {
         "id": 42,
         "client_id": 1,
@@ -52,6 +65,10 @@ def test_commande_read_from_dict() -> None:
 
 
 def test_commande_update_partial() -> None:
+    """
+    Vérifie que CommandeUpdate peut être partiellement instancié.
+    Seule la valeur du statut est fournie, les autres champs restent None.
+    """
     payload = {"statut": "servie"}
     update = CommandeUpdate(**payload)  # type: ignore[arg-type]
 
@@ -61,6 +78,10 @@ def test_commande_update_partial() -> None:
 
 
 def test_commande_update_with_details() -> None:
+    """
+    Vérifie que CommandeUpdate peut inclure des détails ainsi que d'autres champs,
+    et que ces valeurs sont correctement assignées.
+    """
     payload = {
         "client_id": 99,
         "details": [{"produit_id": 2, "quantite": 3}],

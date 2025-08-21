@@ -17,6 +17,20 @@ from app.schemas.commande import CommandeCreate, CommandeUpdate
 
 # --- Create ---
 def create_commande(session: Session, commande_data: CommandeCreate) -> Commande:
+    """Crée une nouvelle commande avec ses détails et calcule le montant total.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        commande_data (CommandeCreate): Les données de la commande à créer,
+        incluant le client et les détails.
+
+    Returns:
+        Commande: La commande créée et persistée en base.
+
+    Raises:
+        SQLAlchemyError: En cas d'erreur lors de la transaction,
+        celle-ci est rollbackée.
+    """
     try:
         commande = Commande(
             client_id=commande_data.client_id,
@@ -57,6 +71,17 @@ def get_commandes(
     date_commande: Optional[datetime] = None,
     statut: Optional[StatusEnum] = None,
 ) -> Sequence[Commande]:
+    """Récupère une liste de commandes filtrée selon différents critères.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la requête.
+        client_id (Optional[int]): Filtre par identifiant de client.
+        date_commande (Optional[datetime]): Filtre par date de commande.
+        statut (Optional[StatusEnum]): Filtre par statut de commande.
+
+    Returns:
+        Sequence[Commande]: Une liste de commandes correspondant aux filtres.
+    """
     statement = select(Commande)
 
     if client_id is not None:
@@ -77,6 +102,15 @@ def get_commandes(
 
 # --- Read (par id)---
 def get_commande(session: Session, commande_id: int) -> Optional[Commande]:
+    """Récupère une commande spécifique par son identifiant.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la requête.
+        commande_id (int): L'identifiant de la commande à récupérer.
+
+    Returns:
+        Optional[Commande]: La commande correspondante ou None si elle n'existe pas.
+    """
     statement = select(Commande).where(Commande.id == commande_id)
     result = session.exec(statement)
     return result.one_or_none()
@@ -86,6 +120,17 @@ def get_commande(session: Session, commande_id: int) -> Optional[Commande]:
 def update_commande(
     session: Session, commande_id: int, commande_data: CommandeUpdate
 ) -> Optional[Commande]:
+    """Met à jour une commande existante avec de nouvelles informations.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        commande_id (int): L'identifiant de la commande à mettre à jour.
+        commande_data (CommandeUpdate): Les nouvelles données à appliquer,
+        y compris éventuellement les détails.
+
+    Returns:
+        Optional[Commande]: La commande mise à jour ou None si elle n'existe pas.
+    """
     commande = session.get(Commande, commande_id)
     if not commande:
         return None
@@ -105,6 +150,20 @@ def update_commande(
 
 # --- Delete ---
 def delete_commande(session: Session, commande_id: int) -> bool:
+    """Supprime une commande existante par son identifiant.
+
+    Args:
+        session (Session): La session SQLModel utilisée pour la transaction.
+        commande_id (int): L'identifiant de la commande à supprimer.
+
+    Returns:
+        bool: True si la commande a été supprimée avec succès,
+        False si elle n'existait pas.
+
+    Raises:
+        SQLAlchemyError: En cas d'erreur lors de la suppression,
+        la transaction est rollbackée.
+    """
     commande = session.get(Commande, commande_id)
     if not commande:
         return False

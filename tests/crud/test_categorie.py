@@ -11,41 +11,37 @@ from app.crud.categorie import (
 from app.models.commandes_et_produits import Categorie
 from app.schemas.categorie import CategorieCreate, CategorieUpdate
 
-# --- test_Create ---
 
+def test_create_category_persists(session: Session) -> None:
+    """Teste la création et la persistance d'une catégorie dans la base.
 
-def test_create_categorie_persiste(session: Session) -> None:
-    # Arrange
-    data = CategorieCreate(nom="Livres")  # description="Catégorie de livres")
-
-    # Act
+    Vérifie que l'objet créé a un ID, que le nom correspond et que l'objet
+    peut être relu depuis la base de données.
+    """
+    data = CategorieCreate(nom="Livres")
     created = create_categorie(session, data)
 
-    # Assert
     assert created.id is not None
     assert created.nom == "Livres"
-    # assert created.description == "Catégorie de livres"
 
-    # Relire depuis la base
     fetched = session.get(Categorie, created.id)
     assert fetched is not None
     assert fetched.nom == "Livres"
 
 
-# ---test_Read ---
+def test_get_all_categories_returns_all(session: Session) -> None:
+    """Teste la récupération de toutes les catégories.
 
-
-def test_get_all_categories_retourne_toutes(session: Session) -> None:
-    # Arrange – insérestion des données
+    Insère des catégories et vérifie que get_all_categories retourne une liste
+    contenant toutes les catégories insérées.
+    """
     cat1 = Categorie(nom="Livres")
     cat2 = Categorie(nom="Musique")
     session.add_all([cat1, cat2])
     session.commit()
 
-    # Act – appeler la fonction à tester
     result = get_all_categories(session)
 
-    # Assert – vérification du contenue
     assert isinstance(result, list)
     assert len(result) != 0
     noms = [c.nom for c in result]
@@ -53,102 +49,80 @@ def test_get_all_categories_retourne_toutes(session: Session) -> None:
     assert "Musique" in noms
 
 
-def test_get_categorie_by_id_returns_categorie(session: Session) -> None:
-    # Arrange
-    # Déjà fait par faker
-
-    # Act
+def test_get_category_by_id_returns_category(session: Session) -> None:
+    """Teste la récupération d'une catégorie existante par ID."""
     result = get_categorie_by_id(session, 1)
 
-    # Assert
     assert result is not None
     assert result.id == 1
     assert result.nom is not None
 
 
-def test_get_categorie_by_id_returns_none_when_not_found(session: Session) -> None:
-    # Arrange
-    # (aucune catégorie insérée)
-
-    # Act
+def test_get_category_by_id_returns_none_when_not_found(session: Session) -> None:
+    """Teste la récupération d'une catégorie inexistante retourne None."""
     result = get_categorie_by_id(session, 999)
-
-    # Assert
     assert result is None
 
 
-def test_get_categorie_by_nom_found(session: Session) -> None:
-    # Arrange : insérer une catégorie avec un nom spécifique
+def test_get_category_by_name_found(session: Session) -> None:
+    """Teste la récupération d'une catégorie existante par nom."""
     categorie = Categorie(nom="Livres")
     session.add(categorie)
     session.commit()
 
-    # Act : rechercher par nom
     result = get_categorie_by_nom(session, "Livres")
 
-    # Assert : vérifier que l'objet est bien trouvé
     assert result is not None
     assert result.nom == "Livres"
 
 
-def test_get_categorie_by_nom_not_found(session: Session) -> None:
-    # Arrange : ne rien insérer
-
-    # Act : rechercher un nom inexistant
+def test_get_category_by_name_not_found(session: Session) -> None:
+    """Teste la récupération d'une catégorie inexistante par nom retourne None."""
     result = get_categorie_by_nom(session, "Inexistant")
-
-    # Assert : vérifier que le résultat est None
     assert result is None
 
 
-# --- test_Update ---
-def test_update_categorie_success(session: Session) -> None:
-    # Arrange : créer une catégorie existante
+def test_update_category_success(session: Session) -> None:
+    """Teste la mise à jour d'une catégorie existante.
+
+    Vérifie que les champs sont modifiés et que l'objet retourné correspond.
+    """
     categorie = Categorie(nom="Ancien nom")
     session.add(categorie)
     session.commit()
 
-    # Act : mettre à jour avec un nouveau nom et description
     data = CategorieUpdate(nom="Nouveau nom")
     assert categorie.id is not None
     updated = update_categorie(session, categorie.id, data)
 
-    # Assert : vérifier que les champs sont bien mis à jour
     assert updated is not None
     assert updated.nom == "Nouveau nom"
 
 
-def test_update_categorie_not_found(session: Session) -> None:
-    # Arrange : ne pas insérer de catégorie correspondante
-
-    # Act : essayer de mettre à jour un ID inexistant
+def test_update_category_not_found(session: Session) -> None:
+    """Teste la mise à jour d'une catégorie inexistante retourne None."""
     data = CategorieUpdate(nom="Ne devrait pas exister")
     updated = update_categorie(session, 999, data)
-
-    # Assert : aucun objet n'est retourné
     assert updated is None
 
 
-# --- test_Delete ---
-def test_delete_categorie_success(session: Session) -> None:
-    # Arrange : créer et insérer une catégorie à supprimer
+def test_delete_category_success(session: Session) -> None:
+    """Teste la suppression réussie d'une catégorie existante.
+
+    Vérifie que delete_categorie retourne True et que la catégorie n'existe plus.
+    """
     categorie = Categorie(nom="À supprimer", description="Catégorie temporaire")
     session.add(categorie)
     session.commit()
     assert categorie.id is not None
-    # Act : supprimer la catégorie existante
+
     result = delete_categorie(session, categorie.id)
 
-    # Assert : vérifier que la suppression a réussi et que la catégorie n'existe plus
     assert result is True
     assert session.get(Categorie, categorie.id) is None
 
 
-def test_delete_categorie_not_found(session: Session) -> None:
-    # Arrange : ne pas insérer de catégorie avec cet ID
-
-    # Act : tenter de supprimer un ID inexistant
+def test_delete_category_not_found(session: Session) -> None:
+    """Teste la suppression d'une catégorie inexistante retourne False."""
     result = delete_categorie(session, 999)
-
-    # Assert : suppression échouée, résultat False
     assert result is False
