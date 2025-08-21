@@ -36,22 +36,22 @@ jobs:
       TEST_POSTGRES_USER: ${{ secrets.TEST_POSTGRES_USER }}
       TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
       TEST_POSTGRES_DB: ${{ secrets.TEST_POSTGRES_DB }}
-      TEST_POSTGRES_HOST: ${{ secrets.TEST_POSTGRES_HOST }}
-      TEST_POSTGRES_PORT: ${{ secrets.TEST_POSTGRES_PORT }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start DB and init
+      # Étape 1 : Démarre uniquement la DB
+      - name: Start DB
         run: |
-          docker compose -f docker-compose.test.yml up -d my-test-postgres db-init
+          docker compose -f docker-compose.test.yml up -d my-test-postgres
 
+      # Étape 2 : Attendre que la DB soit prête
       - name: Wait for DB
         run: |
           for i in {1..30}; do
             if docker compose -f docker-compose.test.yml exec -T my-test-postgres \
-              pg_isready -U $TEST_POSTGRES_USER -d $TEST_POSTGRES_DB -h $TEST_POSTGRES_HOST; then
+              pg_isready -U $TEST_POSTGRES_USER -d $TEST_POSTGRES_DB -h my-test-postgres; then
               echo "Database is ready!"
               break
             fi
@@ -59,12 +59,21 @@ jobs:
             sleep 2
           done
 
-      - name: Run tests
-        run: docker compose -f docker-compose.test.yml run --rm tests
+      # Étape 3 : Initialisation DB + fake data
+      - name: Init DB and fake data
+        run: |
+          docker compose -f docker-compose.test.yml run --rm db-init
 
+      # Étape 4 : Exécuter les tests
+      - name: Run tests
+        run: |
+          docker compose -f docker-compose.test.yml run --rm tests
+
+      # Étape 5 : Nettoyage
       - name: Clean up
         if: always()
-        run: docker compose -f docker-compose.test.yml down -v
+        run: |
+          docker compose -f docker-compose.test.yml down -v
 
   deploy:
     runs-on: ubuntu-latest
@@ -74,12 +83,13 @@ jobs:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      POSTGRES_HOST: my-postgres
+      POSTGRES_PORT: 5432
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Deploy app
-        run: docker compose -f docker-compose.yml up -d --build
+        run: |
+          docker compose -f docker-compose.yml up -d --build
