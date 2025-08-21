@@ -1,15 +1,16 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
     branches:
-      - main
+      - develop
+  pull_request:
+    branches:
       - develop
 
 jobs:
   quality:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,12 +42,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Étape 1 : Démarre uniquement la DB
       - name: Start DB
         run: |
           docker compose -f docker-compose.test.yml up -d my-test-postgres
 
-      # Étape 2 : Attendre que la DB soit prête
       - name: Wait for DB
         run: |
           for i in {1..30}; do
@@ -59,37 +58,15 @@ jobs:
             sleep 2
           done
 
-      # Étape 3 : Initialisation DB + fake data
       - name: Init DB and fake data
         run: |
           docker compose -f docker-compose.test.yml run --rm db-init
 
-      # Étape 4 : Exécuter les tests
       - name: Run tests
         run: |
           docker compose -f docker-compose.test.yml run --rm tests
 
-      # Étape 5 : Nettoyage
       - name: Clean up
         if: always()
         run: |
           docker compose -f docker-compose.test.yml down -v
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-
-    env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_HOST: my-postgres
-      POSTGRES_PORT: 5432
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy app
-        run: |
-          docker compose -f docker-compose.yml up -d --build

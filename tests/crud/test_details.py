@@ -6,6 +6,14 @@ from app.schemas.detail import DetailsUpdate
 
 
 def test_update_details_commande(session: Session) -> None:
+    """Teste la mise à jour des détails d'une commande.
+
+    Vérifie que :
+    - la commande existe,
+    - les détails sont correctement mis à jour,
+    - le montant total change en conséquence,
+    - les produits et quantités correspondent aux nouvelles valeurs.
+    """
     commande = session.exec(select(Commande)).first()
     assert commande is not None
     old_total = commande.montant_total

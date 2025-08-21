@@ -8,7 +8,13 @@ client = TestClient(app)
 
 
 def test_login_success() -> None:
+    """Teste la connexion réussie d'un utilisateur avec des identifiants valides.
 
+    - Crée un rôle temporaire "client".
+    - Crée un utilisateur unique lié à ce rôle.
+    - Tente de se connecter avec le mot de passe correct.
+    - Vérifie que le code HTTP est 200 et que l'email renvoyé est correct.
+    """
     role_resp = client.post("/roles/", json={"nom": "client"})
     role_id = role_resp.json()["id"]
 
@@ -37,6 +43,13 @@ def test_login_success() -> None:
 
 
 def test_login_invalid_password() -> None:
+    """Teste la connexion avec un mot de passe incorrect.
+
+    - Crée un rôle temporaire "client".
+    - Crée un utilisateur unique lié à ce rôle.
+    - Tente de se connecter avec un mot de passe erroné.
+    - Vérifie que le code HTTP est 400 et le message d'erreur correct.
+    """
     role_resp = client.post("/roles/", json={"nom": "client"})
     role_id = role_resp.json()["id"]
 
@@ -64,7 +77,11 @@ def test_login_invalid_password() -> None:
 
 
 def test_login_nonexistent_email() -> None:
+    """Teste la connexion avec un email inexistant.
 
+    - Tente de se connecter avec un email unique qui n'existe pas.
+    - Vérifie que le code HTTP est 400 et le message d'erreur correct.
+    """
     unique_email = f"ghost_{uuid4().hex}@example.com"
 
     resp = client.post(

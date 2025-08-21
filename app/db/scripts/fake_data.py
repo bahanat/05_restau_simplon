@@ -3,10 +3,8 @@ import random
 from faker import Faker
 from sqlmodel import Session, create_engine
 
-from app.core.config import (
-    settings,
-)
-from app.core.security import hash_mdp
+from app.core.config import settings
+from app.core.security import hash_password
 from app.models.commandes_et_produits import (
     Categorie,
     Commande,
@@ -21,8 +19,26 @@ fake = Faker("fr_FR")
 engine = create_engine(settings.DATABASE_URL, echo=False)
 
 
-# Utilisation de Faker pour la création de fausses données
 def create_fake_data(session: Session) -> None:
+    """
+    Génère et insère des données factices dans la base de données pour le développement
+    et les tests.
+
+    La fonction crée :
+    1. Des rôles (admin, client, serveur)
+    2. Des utilisateurs avec mot de passe hashé
+    3. Des catégories de produits
+    4. Des produits aléatoires
+    5. Des commandes aléatoires pour des clients existants
+    6. Des détails de commande avec calcul automatique du montant total
+
+    Args:
+        session (Session): Session SQLModel utilisée
+        pour interagir avec la base de données.
+
+    Returns:
+        None
+    """
     # --- 1. Créer quelques rôles ---
     role_admin = Role(nom=RoleEnum.admin)
     role_client = Role(nom=RoleEnum.client)
@@ -39,7 +55,7 @@ def create_fake_data(session: Session) -> None:
             email=fake.unique.email(),
             adresse=fake.address(),
             telephone=fake.phone_number(),
-            mot_de_passe=hash_mdp("group1start2025"),
+            mot_de_passe=hash_password("group1start2025"),
             role_id=random.choice([role_admin.id, role_client.id, role_serveur.id]),
             date_creation=fake.date_time_this_year(),
         )
@@ -105,6 +121,9 @@ def create_fake_data(session: Session) -> None:
 
 
 if __name__ == "__main__":
+    """
+    Point d'entrée du script pour générer et insérer les données factices.
+    """
     engine = create_engine(settings.DATABASE_URL, echo=True)
 
     with Session(engine) as session:
