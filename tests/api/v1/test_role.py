@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -6,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_create_role_endpoint():
+def test_create_role_endpoint() -> None:
     resp = client.post("/roles/", json={"nom": "client"})
     assert resp.status_code in (200, 201)
     data = resp.json()
@@ -14,7 +13,7 @@ def test_create_role_endpoint():
     assert "id" in data
 
 
-def test_read_roles_endpoint():
+def test_read_roles_endpoint() -> None:
     client.post("/roles/", json={"nom": "admin"})
     client.post("/roles/", json={"nom": "serveur"})
 
@@ -26,7 +25,7 @@ def test_read_roles_endpoint():
     assert {"admin", "serveur", "client"} <= noms
 
 
-def test_read_role_endpoint():
+def test_read_role_endpoint() -> None:
     created = client.post("/roles/", json={"nom": "serveur"})
     assert created.status_code in (200, 201)
     role_id = created.json()["id"]
@@ -41,7 +40,7 @@ def test_read_role_endpoint():
     assert resp_404.status_code == 404
 
 
-def test_update_role_endpoint():
+def test_update_role_endpoint() -> None:
     created = client.post("/roles/", json={"nom": "client"})
     assert created.status_code in (200, 201)
     role_id = created.json()["id"]
@@ -56,7 +55,7 @@ def test_update_role_endpoint():
     assert resp_404.status_code == 404
 
 
-def test_delete_role_endpoint():
+def test_delete_role_endpoint() -> None:
     created = client.post("/roles/", json={"nom": "serveur"})
     assert created.status_code in (200, 201)
     role_id = created.json()["id"]

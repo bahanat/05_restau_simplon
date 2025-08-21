@@ -1,13 +1,13 @@
-import pytest
-from fastapi.testclient import TestClient
 from uuid import uuid4
+
+from fastapi.testclient import TestClient
 
 from app.main import app
 
 client = TestClient(app)
 
 
-def test_login_success():
+def test_login_success() -> None:
 
     role_resp = client.post("/roles/", json={"nom": "client"})
     role_id = role_resp.json()["id"]
@@ -36,7 +36,7 @@ def test_login_success():
     assert data["user"]["email"] == unique_email
 
 
-def test_login_invalid_password():
+def test_login_invalid_password() -> None:
     role_resp = client.post("/roles/", json={"nom": "client"})
     role_id = role_resp.json()["id"]
 
@@ -63,7 +63,7 @@ def test_login_invalid_password():
     assert data["detail"] == "identifiant errone"
 
 
-def test_login_nonexistent_email():
+def test_login_nonexistent_email() -> None:
 
     unique_email = f"ghost_{uuid4().hex}@example.com"
 

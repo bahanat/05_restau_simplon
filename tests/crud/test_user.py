@@ -1,8 +1,10 @@
-from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
+from collections.abc import Sequence
+
+from app.core.security import hash_mdp
 from app.models.users_et_roles import User
 from app.schemas.user import UserCreate, UserUpdate
-from app.core.security import hash_mdp
 
 
 def create_user(session: Session, user_in: UserCreate) -> User:
@@ -33,7 +35,7 @@ def get_user_by_email(session: Session, email: str) -> User | None:
     return session.exec(select(User).where(User.email == email)).first()
 
 
-def get_all_users(session: Session) -> list[User]:
+def get_all_users(session: Session) -> Sequence[User]:
     return session.exec(select(User)).all()
 
 

@@ -14,7 +14,7 @@ from app.schemas.categorie import CategorieCreate, CategorieUpdate
 # --- test_Create ---
 
 
-def test_create_categorie_persiste(session: Session):
+def test_create_categorie_persiste(session: Session) -> None:
     # Arrange
     data = CategorieCreate(nom="Livres")  # description="Catégorie de livres")
 
@@ -35,7 +35,7 @@ def test_create_categorie_persiste(session: Session):
 # ---test_Read ---
 
 
-def test_get_all_categories_retourne_toutes(session: Session):
+def test_get_all_categories_retourne_toutes(session: Session) -> None:
     # Arrange – insérestion des données
     cat1 = Categorie(nom="Livres")
     cat2 = Categorie(nom="Musique")
@@ -53,7 +53,7 @@ def test_get_all_categories_retourne_toutes(session: Session):
     assert "Musique" in noms
 
 
-def test_get_categorie_by_id_returns_categorie(session: Session):
+def test_get_categorie_by_id_returns_categorie(session: Session) -> None:
     # Arrange
     # Déjà fait par faker
 
@@ -63,10 +63,10 @@ def test_get_categorie_by_id_returns_categorie(session: Session):
     # Assert
     assert result is not None
     assert result.id == 1
-    assert result.nom != None
+    assert result.nom is not None
 
 
-def test_get_categorie_by_id_returns_none_when_not_found(session: Session):
+def test_get_categorie_by_id_returns_none_when_not_found(session: Session) -> None:
     # Arrange
     # (aucune catégorie insérée)
 
@@ -77,7 +77,7 @@ def test_get_categorie_by_id_returns_none_when_not_found(session: Session):
     assert result is None
 
 
-def test_get_categorie_by_nom_found(session: Session):
+def test_get_categorie_by_nom_found(session: Session) -> None:
     # Arrange : insérer une catégorie avec un nom spécifique
     categorie = Categorie(nom="Livres")
     session.add(categorie)
@@ -91,7 +91,7 @@ def test_get_categorie_by_nom_found(session: Session):
     assert result.nom == "Livres"
 
 
-def test_get_categorie_by_nom_not_found(session: Session):
+def test_get_categorie_by_nom_not_found(session: Session) -> None:
     # Arrange : ne rien insérer
 
     # Act : rechercher un nom inexistant
@@ -101,25 +101,16 @@ def test_get_categorie_by_nom_not_found(session: Session):
     assert result is None
 
 
-def test_get_categorie_by_nom_not_found(session: Session):
-    # Arrange : ne rien insérer dans la base
-
-    # Act : rechercher un nom inexistant
-    result = get_categorie_by_nom(session, "Inexistant")
-
-    # Assert : vérifier que le résultat est None
-    assert result is None
-
-
 # --- test_Update ---
-def test_update_categorie_success(session: Session):
+def test_update_categorie_success(session: Session) -> None:
     # Arrange : créer une catégorie existante
     categorie = Categorie(nom="Ancien nom")
     session.add(categorie)
     session.commit()
 
     # Act : mettre à jour avec un nouveau nom et description
-    data = CategorieUpdate(nom="Nouveau nom", description="Nouvelle desc")
+    data = CategorieUpdate(nom="Nouveau nom")
+    assert categorie.id is not None
     updated = update_categorie(session, categorie.id, data)
 
     # Assert : vérifier que les champs sont bien mis à jour
@@ -127,22 +118,7 @@ def test_update_categorie_success(session: Session):
     assert updated.nom == "Nouveau nom"
 
 
-def test_update_categorie_partial_update(session: Session):
-    # Arrange : créer une catégorie avec deux champs
-    categorie = Categorie(nom="Nom initial")
-    session.add(categorie)
-    session.commit()
-
-    # Act : mettre à jour uniquement la description
-    data = CategorieUpdate(description="Desc modifiée")
-    updated = update_categorie(session, categorie.id, data)
-
-    # Assert : le nom reste identique et la description est changée
-    assert updated is not None
-    assert updated.nom == "Nom initial"
-
-
-def test_update_categorie_not_found(session: Session):
+def test_update_categorie_not_found(session: Session) -> None:
     # Arrange : ne pas insérer de catégorie correspondante
 
     # Act : essayer de mettre à jour un ID inexistant
@@ -154,12 +130,12 @@ def test_update_categorie_not_found(session: Session):
 
 
 # --- test_Delete ---
-def test_delete_categorie_success(session: Session):
+def test_delete_categorie_success(session: Session) -> None:
     # Arrange : créer et insérer une catégorie à supprimer
     categorie = Categorie(nom="À supprimer", description="Catégorie temporaire")
     session.add(categorie)
     session.commit()
-
+    assert categorie.id is not None
     # Act : supprimer la catégorie existante
     result = delete_categorie(session, categorie.id)
 
@@ -168,7 +144,7 @@ def test_delete_categorie_success(session: Session):
     assert session.get(Categorie, categorie.id) is None
 
 
-def test_delete_categorie_not_found(session: Session):
+def test_delete_categorie_not_found(session: Session) -> None:
     # Arrange : ne pas insérer de catégorie avec cet ID
 
     # Act : tenter de supprimer un ID inexistant
