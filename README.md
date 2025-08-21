@@ -75,7 +75,7 @@ restausimplon/
 ├── LICENSE
 ├── Makefile                            # Makefile pour le formattage du code et tests
 ├── pyproject.toml                      # Configs de Black, isort, mypy
-├── pytest.ini                          # Configs de Black, isort, mypy
+├── pytest.ini                          # Config de Pytest
 ├── README.md
 ├── requirements.txt                    # Dépendances Python
 ├── template.env                        # Fichier d'exemple pour le .env
