@@ -5,8 +5,9 @@ from app.models.commandes_et_produits import Commande
 from app.schemas.detail import DetailsUpdate
 
 
-def test_update_details_commande(session: Session):
+def test_update_details_commande(session: Session) -> None:
     commande = session.exec(select(Commande)).first()
+    assert commande is not None
     old_total = commande.montant_total
 
     new_details = [

@@ -1,17 +1,17 @@
-import pytest
-from fastapi.testclient import TestClient
 from uuid import uuid4
+
+from fastapi.testclient import TestClient
 
 from app.main import app
 
 client = TestClient(app)
 
 
-def unique_email(prefix="user"):
+def unique_email(prefix : str ="user") -> str:
     return f"{prefix}_{uuid4().hex}@example.com"
 
 
-def test_create_user_endpoint():
+def test_create_user_endpoint() -> None:
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -39,7 +39,7 @@ def test_create_user_endpoint():
     assert data["role_id"] == role_id
 
 
-def test_read_users_endpoint():
+def test_read_users_endpoint() -> None:
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -74,7 +74,7 @@ def test_read_users_endpoint():
     assert u2["email"] in emails
 
 
-def test_read_user_endpoint():
+def test_read_user_endpoint() -> None:
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -107,7 +107,7 @@ def test_read_user_endpoint():
     assert resp_404.status_code == 404
 
 
-def test_update_user_endpoint():
+def test_update_user_endpoint() -> None:
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]
@@ -148,7 +148,7 @@ def test_update_user_endpoint():
     assert resp_404.status_code == 404
 
 
-def test_delete_user_endpoint():
+def test_delete_user_endpoint() -> None:
     r = client.post("/roles/", json={"nom": "client"})
     assert r.status_code in (200, 201)
     role_id = r.json()["id"]

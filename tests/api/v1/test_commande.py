@@ -11,7 +11,7 @@ client = TestClient(app)
 
 
 @pytest.mark.parametrize("statut", [StatusEnum.en_attente, StatusEnum.servie])
-def test_create_commande(session: Session, statut):
+def test_create_commande(session: Session, statut:StatusEnum) -> None:
     payload = {
         "client_id": 1,
         "date_commande": datetime.now().isoformat(),
@@ -27,7 +27,7 @@ def test_create_commande(session: Session, statut):
     assert data["statut"] == statut.value
 
 
-def test_get_commande(session: Session):
+def test_get_commande(session: Session) -> None:
     commande = session.exec(select(Commande)).first()
     assert commande is not None
 
@@ -38,7 +38,7 @@ def test_get_commande(session: Session):
     assert data["id"] == commande.id
 
 
-def test_list_commandes(session: Session):
+def test_list_commandes(session: Session) -> None:
     response = client.get("/commandes/")
 
     assert response.status_code == 200
@@ -47,8 +47,9 @@ def test_list_commandes(session: Session):
     assert len(data) > 0
 
 
-def test_update_commande(session: Session):
+def test_update_commande(session: Session) -> None:
     commande = session.exec(select(Commande)).first()
+    assert commande is not None
     payload = {"statut": StatusEnum.servie}
 
     response = client.patch(f"/commandes/{commande.id}", json=payload)
@@ -58,9 +59,9 @@ def test_update_commande(session: Session):
     assert data["statut"] == StatusEnum.servie
 
 
-def test_delete_commande(session: Session):
+def test_delete_commande(session: Session) -> None:
     commande = session.exec(select(Commande)).first()
-
+    assert commande is not None 
     response = client.delete(f"/commandes/{commande.id}")
     assert response.status_code == 204
 

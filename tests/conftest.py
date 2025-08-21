@@ -1,5 +1,6 @@
 import pytest
 from sqlmodel import Session, create_engine
+from collections.abc import Generator
 
 from app.core.config import settings
 
@@ -8,7 +9,7 @@ engine = create_engine(test_url, echo=True)
 
 
 @pytest.fixture(scope="function")
-def session():
+def session() -> Generator[Session, None, None]:
     connection = engine.connect()
     transaction = connection.begin()
 

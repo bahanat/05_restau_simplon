@@ -2,7 +2,7 @@ from sqlalchemy import inspect
 from sqlmodel import Session
 
 
-def test_tables_creation(session: Session):
+def test_tables_creation(session: Session) -> None:
     engine = session.get_bind()
     inspector = inspect(engine)
     tables = inspector.get_table_names()
