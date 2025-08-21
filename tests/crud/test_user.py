@@ -1,6 +1,7 @@
+from collections.abc import Sequence
+
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
-from collections.abc import Sequence
 
 from app.core.security import hash_mdp
 from app.models.users_et_roles import User

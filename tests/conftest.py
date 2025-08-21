@@ -1,6 +1,7 @@
+from collections.abc import Generator
+
 import pytest
 from sqlmodel import Session, create_engine
-from collections.abc import Generator
 
 from app.core.config import settings
 
