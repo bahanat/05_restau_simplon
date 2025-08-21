@@ -5,14 +5,14 @@ services:
       - POSTGRES_USER=${TEST_POSTGRES_USER}
       - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
       - POSTGRES_DB=${TEST_POSTGRES_DB}
-      - POSTGRES_HOST=${TEST_POSTGRES_HOST}
-      - POSTGRES_PORT=${TEST_POSTGRES_PORT}
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mytestnet
     volumes:
       - pgdata_testdb:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${TEST_POSTGRES_USER} -d ${TEST_POSTGRES_DB} -h ${TEST_POSTGRES_HOST}"]
+      test: ["CMD-SHELL", "pg_isready -U ${TEST_POSTGRES_USER} -d ${TEST_POSTGRES_DB} -h my-test-postgres"]
       interval: 2s
       retries: 15
       start_period: 30s
@@ -26,8 +26,8 @@ services:
       - POSTGRES_USER=${TEST_POSTGRES_USER}
       - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
       - POSTGRES_DB=${TEST_POSTGRES_DB}
-      - POSTGRES_HOST=${TEST_POSTGRES_HOST}
-      - POSTGRES_PORT=${TEST_POSTGRES_PORT}
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mytestnet
     depends_on:
@@ -46,8 +46,8 @@ services:
       - POSTGRES_USER=${TEST_POSTGRES_USER}
       - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
       - POSTGRES_DB=${TEST_POSTGRES_DB}
-      - POSTGRES_HOST=${TEST_POSTGRES_HOST}
-      - POSTGRES_PORT=${TEST_POSTGRES_PORT}
+      - POSTGRES_HOST=my-test-postgres
+      - POSTGRES_PORT=5432
     networks:
       - mytestnet
     depends_on:
